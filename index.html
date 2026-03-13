@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Agent — STEM Copilot</title>
+<script src="https://js.puter.com/v2/"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#181a1b;--s1:#1e2022;--s2:#242628;--s3:#2c2e31;
+  --bd:#2e3033;--bd2:#3a3d42;
+  --accent:#f97316;--a2:#38bdf8;--a3:#a3e635;--a4:#e879f9;--a5:#fb7185;
+  --text:#e6e8ea;--muted:#5c5f66;--muted2:#888b92;
+  --r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* HEADER */
+header{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 1.4rem;border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:200;background:rgba(24,26,27,.96);backdrop-filter:blur(10px)}
+.logo{font-family:'Playfair Display',serif;font-size:1.05rem;display:flex;align-items:center;gap:.5rem}
+.logo-sq{width:24px;height:24px;background:var(--accent);border-radius:5px;display:grid;place-items:center;font-size:.65rem;font-weight:900;color:#000}
+.logo em{color:var(--accent);font-style:normal}
+.hbadge{background:rgba(163,230,53,.07);border:1px solid rgba(163,230,53,.18);color:var(--a3);padding:.18rem .55rem;border-radius:100px;font-size:.6rem;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;display:flex;align-items:center;gap:.35rem}
+.dot-live{width:5px;height:5px;border-radius:50%;background:var(--a3);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* TOP NAV */
+.nav{display:flex;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none;position:sticky;top:50px;z-index:190;background:var(--bg)}
+.nav::-webkit-scrollbar{display:none}
+.ntab{flex-shrink:0;padding:.65rem 1.1rem;font-size:.77rem;font-weight:500;color:var(--muted2);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.ntab:hover{color:var(--text)}
+.ntab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
+
+/* PAGE */
+.pg{display:none;flex-direction:column;align-items:center;padding:2.8rem 1.2rem 5rem;min-height:calc(100vh - 100px)}
+.pg.on{display:flex;animation:up .18s ease}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:1.8rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.1rem,5vw,3.2rem);font-weight:700;letter-spacing:-.02em;margin-bottom:.45rem}
+.hero p{color:var(--muted2);font-size:.88rem;max-width:460px;margin:0 auto;line-height:1.65}
+
+/* QUICK CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem;width:100%;max-width:760px;justify-content:center}
+.chip{background:var(--s1);border:1px solid var(--bd);color:var(--muted2);padding:.28rem .75rem;border-radius:100px;font-size:.7rem;font-weight:500;cursor:pointer;transition:all .13s}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+
+/* OPTIONS ROW */
+.opts{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.9rem;width:100%;max-width:760px;align-items:center}
+.olbl{font-size:.64rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;flex-shrink:0}
+.opill{background:var(--s1);border:1px solid var(--bd);color:var(--muted2);padding:.28rem .75rem;border-radius:7px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .13s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.opill:hover{border-color:var(--bd2);color:var(--text)}
+.opill.on{border-color:var(--accent);color:var(--accent);background:rgba(249,115,22,.07)}
+
+/* ══ GPAI INPUT CARD ══ */
+.icard{width:100%;max-width:760px;background:var(--s1);border:1.5px solid var(--bd);border-radius:18px;overflow:visible;transition:border-color .2s,box-shadow .2s;position:relative}
+.icard:focus-within{border-color:rgba(249,115,22,.55);box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+.icard textarea{width:100%;background:transparent;border:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;padding:1.1rem 1.25rem .5rem;resize:none;min-height:105px;outline:none;line-height:1.7;display:block}
+.icard textarea::placeholder{color:var(--muted)}
+
+/* bottom bar */
+.ibar{display:flex;align-items:center;justify-content:space-between;padding:.5rem .65rem .5rem .85rem;border-top:1px solid var(--bd);gap:.5rem}
+.ibar-l{display:flex;align-items:center;gap:.35rem}
+.ibar-r{display:flex;align-items:center;gap:.45rem}
+
+/* icon buttons */
+.ico{width:30px;height:30px;border-radius:7px;background:transparent;border:1px solid transparent;color:var(--muted2);cursor:pointer;display:grid;place-items:center;font-size:.9rem;transition:all .13s;flex-shrink:0;line-height:1}
+.ico:hover{background:var(--s3);border-color:var(--bd2);color:var(--text)}
+.ico.on{color:var(--a3);border-color:rgba(163,230,53,.28);background:rgba(163,230,53,.05)}
+
+/* deep explain text link */
+.deep-lnk{display:flex;align-items:center;gap:.3rem;color:var(--muted2);font-size:.72rem;font-weight:500;cursor:pointer;transition:color .13s;padding:.2rem .45rem;border-radius:6px}
+.deep-lnk:hover{color:var(--text);background:var(--s3)}
+.deep-lnk.on{color:var(--a2)}
+
+/* model pill */
+.mpill{display:flex;align-items:center;gap:.3rem;background:var(--s3);border:1px solid var(--bd2);color:var(--text);padding:.28rem .7rem;border-radius:7px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .13s;font-family:'DM Sans',sans-serif;position:relative;white-space:nowrap}
+.mpill:hover{border-color:var(--accent)}
+.mpill .arr{font-size:.5rem;opacity:.55}
+
+/* send button */
+.sbtn{width:30px;height:30px;border-radius:7px;background:var(--accent);border:none;color:#000;cursor:pointer;display:grid;place-items:center;font-size:.95rem;font-weight:900;transition:all .16s;flex-shrink:0}
+.sbtn:hover{transform:scale(1.07);box-shadow:0 4px 14px rgba(249,115,22,.38)}
+.sbtn:active{transform:scale(.95)}
+.sbtn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* file hint */
+.fhint{color:var(--muted);font-size:.7rem;margin-top:.55rem;width:100%;max-width:760px;line-height:1.5}
+
+/* file chips row */
+.frow{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem;width:100%;max-width:760px}
+.fchip{display:inline-flex;align-items:center;gap:.3rem;background:rgba(163,230,53,.06);border:1px solid rgba(163,230,53,.18);color:var(--a3);padding:.22rem .6rem;border-radius:100px;font-size:.66rem;font-weight:600;font-family:'JetBrains Mono',monospace}
+.fchip .fx{cursor:pointer;opacity:.55;margin-left:.15rem;font-size:.7rem}
+.fchip .fx:hover{opacity:1}
+
+/* model dropdown */
+.mdrop{position:absolute;bottom:calc(100% + 6px);right:0;background:var(--s2);border:1px solid var(--bd2);border-radius:12px;padding:.35rem;min-width:190px;z-index:300;box-shadow:0 8px 28px rgba(0,0,0,.5);display:none}
+.mdrop.on{display:block;animation:up .12s ease}
+.mdi{display:flex;align-items:center;gap:.55rem;padding:.5rem .8rem;border-radius:7px;font-size:.76rem;font-weight:500;cursor:pointer;transition:background .1s;color:var(--muted2)}
+.mdi:hover{background:var(--s3);color:var(--text)}
+.mdi.on{color:var(--text);background:rgba(249,115,22,.07)}
+.mdi.on::after{content:'✓';margin-left:auto;color:var(--accent);font-size:.7rem}
+.mdd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ══ OUTPUT CARD ══ */
+.owrap{width:100%;max-width:760px;margin-top:1.4rem;display:none}
+.ocard{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.ohdr{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bd);background:var(--s2)}
+.otitle{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);display:flex;align-items:center;gap:.4rem}
+.odot{width:5px;height:5px;border-radius:50%}
+.obody{padding:1.2rem;line-height:1.85;font-size:.87rem}
+.obody h1{color:var(--accent);font-size:1rem;font-weight:700;margin:.9rem 0 .4rem;font-family:'Playfair Display',serif}
+.obody h1:first-child,.obody h2:first-child{margin-top:0}
+.obody h2{color:var(--a2);font-size:.82rem;font-weight:700;margin:.8rem 0 .35rem;text-transform:uppercase;letter-spacing:.06em}
+.obody h3{color:var(--a3);font-size:.83rem;font-weight:600;margin:.6rem 0 .25rem}
+.obody strong{color:var(--text)}
+.obody code{background:rgba(249,115,22,.1);color:var(--accent);padding:.1rem .32rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+.obody ul,.obody ol{padding-left:1.2rem;margin:.3rem 0}
+.obody li{margin-bottom:.25rem;color:var(--muted2)}
+.obody li strong{color:var(--text)}
+.obody table{width:100%;border-collapse:collapse;margin:.6rem 0;font-size:.8rem}
+.obody th{background:var(--s2);color:var(--muted2);padding:.42rem .75rem;border:1px solid var(--bd);font-size:.67rem;text-transform:uppercase;letter-spacing:.05em}
+.obody td{padding:.42rem .75rem;border:1px solid var(--bd)}
+.obody p{margin:.3rem 0;color:var(--muted2)}
+.obody p strong{color:var(--text)}
+.oftr{display:flex;gap:.4rem;padding:.55rem 1rem;border-top:1px solid var(--bd);background:var(--s2)}
+.abtn{background:var(--s3);border:1px solid var(--bd2);color:var(--muted2);padding:.28rem .72rem;border-radius:6px;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .13s;font-family:'DM Sans',sans-serif}
+.abtn:hover{color:var(--text);border-color:var(--a2)}
+.oempty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:130px;color:var(--muted);font-size:.78rem;gap:.4rem;font-family:'JetBrains Mono',monospace}
+
+/* SVG wrap */
+.svgwrap{width:100%;max-width:760px;background:var(--s1);border:1px solid var(--bd);border-radius:14px;min-height:340px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-top:1.4rem}
+.svgwrap svg{max-width:100%;height:auto;max-height:460px}
+
+
+
+/* ══ COMBO MODE BAR ══ */
+.combo-bar{display:flex;flex-wrap:wrap;gap:.4rem;width:100%;max-width:760px;margin-bottom:.7rem;align-items:center}
+.combo-lbl{font-size:.64rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;margin-right:.2rem}
+.cmode-btn{display:flex;align-items:center;gap:.35rem;background:var(--s2);border:1px solid var(--bd2);color:var(--muted2);padding:.32rem .8rem;border-radius:8px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .13s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.cmode-btn:hover{border-color:var(--bd2);color:var(--text)}
+.cmode-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(249,115,22,.08)}
+.cmode-btn .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* model responses grid */
+.multi-wrap{width:100%;max-width:760px;display:grid;gap:.7rem;margin-top:.5rem}
+.multi-wrap.cols2{grid-template-columns:1fr 1fr}
+.multi-wrap.cols3{grid-template-columns:1fr 1fr 1fr}
+.mcard{background:var(--s2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.mcard-hdr{display:flex;align-items:center;gap:.5rem;padding:.55rem .85rem;border-bottom:1px solid var(--bd);background:var(--s3)}
+.mcard-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mcard-name{font-size:.7rem;font-weight:700;flex:1}
+.mcard-badge{font-size:.58rem;font-family:'JetBrains Mono',monospace;padding:.1rem .4rem;border-radius:100px;background:rgba(255,255,255,.06);color:var(--muted2)}
+.mcard-body{padding:.85rem;font-size:.82rem;line-height:1.75;color:var(--muted2);flex:1;max-height:320px;overflow-y:auto}
+.mcard-body strong{color:var(--text)}
+.mcard-body code{background:rgba(249,115,22,.1);color:var(--accent);padding:.08rem .28rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.mcard-body.loading{display:flex;align-items:center;justify-content:center;min-height:80px;color:var(--muted);font-size:.75rem;gap:.5rem}
+.mcard-body::-webkit-scrollbar{width:3px}
+.mcard-body::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+.mcard-ftr{display:flex;gap:.35rem;padding:.45rem .7rem;border-top:1px solid var(--bd);background:var(--s3)}
+.mcard-ftr .abtn{font-size:.64rem;padding:.2rem .55rem}
+
+/* best-pick highlight */
+.mcard.best{border-color:var(--accent);box-shadow:0 0 0 1px rgba(249,115,22,.2)}
+.mcard.best .mcard-hdr{background:rgba(249,115,22,.08)}
+.best-crown{color:var(--accent);font-size:.75rem}
+
+/* cross-check verify card */
+.verify-card{background:rgba(56,189,248,.05);border:1px solid rgba(56,189,248,.2);border-radius:12px;padding:.85rem 1rem;width:100%;max-width:760px;margin-top:.6rem}
+.verify-hdr{display:flex;align-items:center;gap:.5rem;margin-bottom:.55rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--a2)}
+.verify-body{font-size:.83rem;line-height:1.75;color:var(--text)}
+
+/* single model normal chat stays same */
+@media(max-width:640px){.multi-wrap.cols2,.multi-wrap.cols3{grid-template-columns:1fr}}
+
+/* ══ GPAI AI MODE DROPDOWN ══ */
+.ai-mode-wrap{width:100%;max-width:760px;margin-bottom:.9rem;position:relative}
+.ai-mode-btn{width:100%;display:flex;align-items:center;gap:.75rem;background:var(--s2);border:1.5px solid var(--bd2);border-radius:12px;padding:.75rem 1rem;cursor:pointer;transition:all .15s;text-align:left}
+.ai-mode-btn:hover{border-color:var(--accent);background:var(--s3)}
+.ai-mode-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:1.1rem;background:var(--s3);flex-shrink:0}
+.ai-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--s2);border:1px solid var(--bd2);border-radius:14px;padding:.5rem;z-index:250;box-shadow:0 10px 36px rgba(0,0,0,.55);display:none}
+.ai-drop.on{display:block;animation:up .15s ease}
+.ai-drop-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .7rem .5rem;border-bottom:1px solid var(--bd);margin-bottom:.35rem}
+.ai-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .85rem;border-radius:9px;cursor:pointer;transition:background .12s;position:relative}
+.ai-item:hover{background:var(--s3)}
+.ai-item.on{background:rgba(249,115,22,.06)}
+.ai-item.on::after{content:'✓';position:absolute;right:.85rem;color:var(--accent);font-weight:700;font-size:.8rem}
+.ai-item-ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:1rem;background:var(--s3);flex-shrink:0}
+.ai-item-info{display:flex;flex-direction:column;gap:.1rem;flex:1}
+.ai-item-name{font-size:.82rem;font-weight:700;color:var(--text)}
+.ai-item-desc{font-size:.68rem;color:var(--muted2)}
+.ai-item.disabled .ai-item-name,.ai-item.disabled .ai-item-desc{color:var(--muted)}
+.ai-item.disabled{cursor:default}
+.ai-badge{display:inline-block;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.25);color:var(--accent);font-size:.58rem;font-weight:700;padding:.08rem .35rem;border-radius:100px;margin-left:.3rem;font-family:'JetBrains Mono',monospace}
+
+/* LOAD BAR */
+.lbar{height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--a2),transparent);background-size:200%;animation:lb 1s linear infinite;border-radius:2px}
+@keyframes lb{to{background-position:-200% 0}}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(0,0,0,.15);border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ERR */
+.err{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);color:#fca5a5;padding:.55rem .9rem;border-radius:8px;font-size:.74rem;font-family:'JetBrains Mono',monospace;margin-top:.5rem;width:100%;max-width:760px;display:none}
+
+/* CHAT */
+.cwrap{width:100%;max-width:760px;display:flex;flex-direction:column;gap:.8rem}
+.cwin{background:var(--s1);border:1px solid var(--bd);border-radius:14px;min-height:340px;max-height:460px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.7rem}
+.cwin::-webkit-scrollbar{width:3px}
+.cwin::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+.cmsg{max-width:80%;padding:.65rem .95rem;border-radius:14px;font-size:.86rem;line-height:1.7;word-break:break-word}
+.cmsg.u{background:var(--accent);color:#000;font-weight:500;align-self:flex-end;border-radius:14px 14px 3px 14px}
+.cmsg.a{background:var(--s2);border:1px solid var(--bd);color:var(--text);align-self:flex-start;border-radius:14px 14px 14px 3px}
+.cmsg.a strong{color:var(--a2)}
+.cmsg.a code{background:rgba(249,115,22,.1);color:var(--accent);padding:.08rem .28rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+
+/* MECH SUB TABS */
+.stabs{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1.4rem;width:100%;max-width:900px;justify-content:center}
+.stab{background:var(--s1);border:1px solid var(--bd);color:var(--muted2);padding:.38rem .85rem;border-radius:7px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .13s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.stab:hover{color:var(--text)}
+.stab.on{background:var(--accent);border-color:var(--accent);color:#000}
+.msub{display:none;width:100%;max-width:760px;flex-direction:column;align-items:center;gap:.8rem}
+.msub.on{display:flex;animation:up .18s ease}
+
+/* UNIT CONVERTER */
+.ucg{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:.85rem;width:100%;max-width:900px}
+.ucc{background:var(--s1);border:1px solid var(--bd);border-radius:11px;padding:.9rem}
+.uctit{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.65rem}
+.uci{width:100%;background:var(--s2);border:1px solid var(--bd);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.76rem;padding:.38rem .65rem;border-radius:6px;outline:none;margin-bottom:.35rem;transition:border-color .15s}
+.uci:focus{border-color:var(--accent)}
+.uci::placeholder{color:var(--muted);font-size:.7rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--accent);color:#000;padding:.55rem 1rem;border-radius:8px;font-weight:700;font-size:.78rem;transform:translateY(70px);transition:transform .25s;z-index:999;pointer-events:none}
+.toast.on{transform:translateY(0)}
+
+@media(max-width:600px){
+  .ntab{padding:.6rem .8rem;font-size:.7rem}
+  .pg{padding:1.6rem .8rem 4rem}
+  .cmsg{max-width:92%}
+  .ucg{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><div class="logo-sq">✦</div>AI<em>Agent</em></div>
+  <div class="hbadge"><span class="dot-live"></span>FREE · NO API KEY</div>
+</header>
+
+<nav class="nav">
+  <button class="ntab on"  onclick="gp('solver',this)">🧮 AI Solver</button>
+  <button class="ntab"     onclick="gp('vis',this)">📊 AI Visualizer</button>
+  <button class="ntab"     onclick="gp('cs',this)">📝 Cheatsheet</button>
+  <button class="ntab"     onclick="gp('ex',this)">🔍 Deep Explain</button>
+  <button class="ntab"     onclick="gp('note',this)">📓 AI Note</button>
+  <button class="ntab"     onclick="gp('chat',this)">💬 AI Chat</button>
+  <button class="ntab"     onclick="gp('report',this)">📄 Report Writer</button>
+  <button class="ntab"     onclick="gp('mech',this)">⚙️ Mechanical Engg</button>
+</nav>
+
+<!-- ═══ SOLVER ═══ -->
+<div class="pg on" id="pg-solver">
+  <div class="hero"><h1>AI Solver</h1><p>Paste any math, physics, chemistry problem — get detailed step-by-step solution.</p></div>
+  <div class="opts" id="so-lang-opts">
+    <span class="olbl">Language:</span>
+    <span class="opill on" onclick="pick(this,'so-lang-opts','so_lang','English')">English</span>
+    <span class="opill"    onclick="pick(this,'so-lang-opts','so_lang','Hindi')">हिंदी</span>
+    <span class="opill"    onclick="pick(this,'so-lang-opts','so_lang','Hinglish')">Hinglish</span>
+    <span class="opill"    onclick="pick(this,'so-lang-opts','so_lang','Marathi')">मराठी</span>
+  </div>
+  <div class="chips">
+    <span class="chip" onclick="sv('so-inp','Solve: 2x² + 5x - 3 = 0')">Quadratic</span>
+    <span class="chip" onclick="sv('so-inp','Derivative of f(x) = 3x³ + 2x² - 5x + 7')">Derivative</span>
+    <span class="chip" onclick="sv('so-inp','Ball thrown 20 m/s up, g=10, find max height')">Projectile</span>
+    <span class="chip" onclick="sv('so-inp','Balance: Fe + O₂ → Fe₂O₃')">Balance Eq</span>
+    <span class="chip" onclick="sv('so-inp','Integrate: ∫(3x² + 2x) dx')">Integration</span>
+    <span class="chip" onclick="sv('so-inp','Ohm\'s law: V=12V, R=4Ω, find current and power')">Ohm's Law</span>
+  </div>
+  <div class="icard">
+    <textarea id="so-inp" placeholder="Get a detailed solution…" rows="4" onkeydown="ek(event,runSolver)"></textarea>
+    <div class="ibar">
+      <div class="ibar-l">
+        <button class="ico" id="at-solver" onclick="af('solver')" title="Attach file">📎</button>
+        <span id="fn-solver" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      </div>
+      <div class="ibar-r">
+        <div style="position:relative">
+          <button class="mpill" onclick="td('md-solver')"><span id="ml-solver">GPT-4o Mini</span><span class="arr">▼</span></button>
+          <div class="mdrop" id="md-solver"></div>
+        </div>
+        <button class="sbtn" id="so-btn" onclick="runSolver()">↑</button>
+      </div>
+    </div>
+  </div>
+  <div class="fhint">Upload up to 5 files (JPG, PNG, PDF, TXT, CSV) · Max per file: 10MB</div>
+  <div class="frow" id="fr-solver"></div>
+  <div class="err" id="so-err"></div>
+  <div class="owrap" id="so-ow">
+    <div class="ocard">
+      <div class="ohdr"><div class="otitle"><div class="odot" style="background:var(--accent)"></div>Solution</div>
+        <div style="display:flex;gap:.35rem"><button class="abtn" onclick="cp2('so-ob')">📋 Copy</button><button class="abtn" onclick="document.getElementById('so-ow').style.display='none'">✕</button></div></div>
+      <div class="lbar" id="so-lb" style="display:none"></div>
+      <div class="obody" id="so-ob"><div class="oempty">🧮<br>Solution appears here</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VISUALIZER ═══ -->
+<div class="pg" id="pg-vis">
+  <div class="hero"><h1>AI Visualizer</h1><p>Enter what you want to visualize — add references for better accuracy.</p></div>
+  <!-- GPAI-style AI Mode selector -->
+  <div class="ai-mode-wrap" id="ai-mode-wrap">
+    <button class="ai-mode-btn" onclick="toggleAiDrop()">
+      <span class="ai-mode-icon" id="ai-mode-icon">🤖</span>
+      <span style="display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;flex:1">
+        <span id="ai-mode-label" style="font-weight:700;font-size:.82rem;color:var(--text)">Mixture of AI</span>
+        <span id="ai-mode-desc" style="font-size:.67rem;color:var(--muted2)">Auto-selects the optimal model</span>
+      </span>
+      <span style="color:var(--accent);font-size:.75rem" id="ai-mode-check">✓</span>
+      <span style="color:var(--muted);font-size:.6rem;margin-left:.2rem">▼</span>
+    </button>
+    <div class="ai-drop" id="ai-drop">
+      <div class="ai-drop-title">AI Agent</div>
+    </div>
+  </div>
+  <div class="opts" id="vs-ratio-opts">
+    <span class="olbl">Ratio:</span>
+    <span class="opill on" onclick="pick(this,'vs-ratio-opts','vs_ratio','700x450')">16:9</span>
+    <span class="opill"    onclick="pick(this,'vs-ratio-opts','vs_ratio','500x500')">1:1</span>
+    <span class="opill"    onclick="pick(this,'vs-ratio-opts','vs_ratio','500x700')">Portrait</span>
+  </div>
+  <div class="chips">
+    <span class="chip" onclick="sv('vs-inp','LED circuit with 9V battery 220Ω resistor')">LED Circuit</span>
+    <span class="chip" onclick="sv('vs-inp','Benzene ring C₆H₆ structure')">Benzene</span>
+    <span class="chip" onclick="sv('vs-inp','Spur gear pair 20 and 60 teeth meshing')">Gear Pair</span>
+    <span class="chip" onclick="sv('vs-inp','Flowchart for user login with error states')">Login Flow</span>
+    <span class="chip" onclick="sv('vs-inp','DNA double helix with labeled base pairs')">DNA</span>
+    <span class="chip" onclick="sv('vs-inp','Newton\'s laws force diagram')">Force Diagram</span>
+  </div>
+  <div class="icard">
+    <textarea id="vs-inp" placeholder="Enter what you want to visualize (add references for better accuracy)" rows="3" onkeydown="ek(event,runVis)"></textarea>
+    <div class="ibar">
+      <div class="ibar-l">
+        <button class="ico" id="at-vis" onclick="af('vis')" title="Attach reference image">🖼️</button>
+        <span id="fn-vis" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      </div>
+      <div class="ibar-r">
+        <button class="sbtn" id="vs-btn" onclick="runVis()">↑</button>
+      </div>
+    </div>
+  </div>
+  <div class="fhint">Upload up to 5 files (JPG, PNG) · Max per file: 10MB</div>
+  <div class="frow" id="fr-vis"></div>
+  <div class="err" id="vs-err"></div>
+  <div class="svgwrap" id="vs-out" style="display:none"><div class="oempty">📊<br>Diagram appears here</div></div>
+  <div id="vs-act" style="display:none;gap:.4rem;margin-top:.6rem;width:100%;max-width:760px">
+    <button class="abtn" onclick="dlSVG()">⬇ Download SVG</button>
+  </div>
+</div>
+
+<!-- ═══ CHEATSHEET ═══ -->
+<div class="pg" id="pg-cs">
+  <div class="hero"><h1>AI Cheatsheet</h1><p>Enter a topic — get an exam-ready, structured cheatsheet instantly.</p></div>
+  <div class="opts" id="cs-lang-opts">
+    <span class="olbl">Language:</span>
+    <span class="opill on" onclick="pick(this,'cs-lang-opts','cs_lang','English')">English</span>
+    <span class="opill"    onclick="pick(this,'cs-lang-opts','cs_lang','Hindi')">हिंदी</span>
+    <span class="opill"    onclick="pick(this,'cs-lang-opts','cs_lang','Hinglish')">Hinglish</span>
+    <span class="opill"    onclick="pick(this,'cs-lang-opts','cs_lang','Marathi')">मराठी</span>
+  </div>
+  <div class="chips">
+    <span class="chip" onclick="sv('cs-inp','Newton\'s Laws of Motion')">Newton's Laws</span>
+    <span class="chip" onclick="sv('cs-inp','Organic Chemistry Reactions')">Organic Chemistry</span>
+    <span class="chip" onclick="sv('cs-inp','Trigonometry Formulas')">Trigonometry</span>
+    <span class="chip" onclick="sv('cs-inp','Ohm\'s Law and Circuits')">Ohm's Law</span>
+    <span class="chip" onclick="sv('cs-inp','Thermodynamics Laws')">Thermodynamics</span>
+    <span class="chip" onclick="sv('cs-inp','Gear design formulas and Lewis equation')">Gear Design</span>
+  </div>
+  <div class="icard">
+    <textarea id="cs-inp" placeholder="Enter topic or paste your notes…" rows="4" onkeydown="ek(event,runCS)"></textarea>
+    <div class="ibar">
+      <div class="ibar-l">
+        <button class="ico" id="at-cs" onclick="af('cs')" title="Attach notes">📎</button>
+        <span id="fn-cs" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      </div>
+      <div class="ibar-r">
+        <button class="sbtn" id="cs-btn" onclick="runCS()">↑</button>
+      </div>
+    </div>
+  </div>
+  <div class="fhint">Upload PDF, TXT, image of notes (JPG/PNG) · Max 10MB</div>
+  <div class="frow" id="fr-cs"></div>
+  <div class="err" id="cs-err"></div>
+  <div class="owrap" id="cs-ow">
+    <div class="ocard">
+      <div class="ohdr"><div class="otitle"><div class="odot" style="background:var(--a3)"></div>Cheatsheet</div>
+        <div style="display:flex;gap:.35rem"><button class="abtn" onclick="cp2('cs-ob')">📋 Copy</button><button class="abtn" onclick="document.getElementById('cs-ow').style.display='none'">✕</button></div></div>
+      <div class="lbar" id="cs-lb" style="display:none"></div>
+      <div class="obody" id="cs-ob"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DEEP EXPLAIN ═══ -->
+<div class="pg" id="pg-ex">
+  <div class="hero"><h1>AI Deep Explain</h1><p>Any concept, explained at your level — Easy, Medium, Expert or Research-level deep.</p></div>
+  <div class="opts" id="ex-lv-opts">
+    <span class="olbl">Level:</span>
+    <span class="opill on" onclick="pick(this,'ex-lv-opts','ex_level','basic')">🟢 Basic</span>
+    <span class="opill"    onclick="pick(this,'ex-lv-opts','ex_level','easy')">🟡 Easy</span>
+    <span class="opill"    onclick="pick(this,'ex-lv-opts','ex_level','medium')">🔵 Medium</span>
+    <span class="opill"    onclick="pick(this,'ex-lv-opts','ex_level','advanced')">🟠 Advanced</span>
+    <span class="opill"    onclick="pick(this,'ex-lv-opts','ex_level','expert')">🔴 Expert</span>
+    <span class="opill"    onclick="pick(this,'ex-lv-opts','ex_level','research')">⚫ Research Deep</span>
+  </div>
+  <div class="opts" id="ex-lang-opts">
+    <span class="olbl">Language:</span>
+    <span class="opill on" onclick="pick(this,'ex-lang-opts','ex_lang','English')">English</span>
+    <span class="opill"    onclick="pick(this,'ex-lang-opts','ex_lang','Hindi')">हिंदी</span>
+    <span class="opill"    onclick="pick(this,'ex-lang-opts','ex_lang','Hinglish')">Hinglish</span>
+    <span class="opill"    onclick="pick(this,'ex-lang-opts','ex_lang','Marathi')">मराठी</span>
+    <span class="opill"    onclick="pick(this,'ex-lang-opts','ex_lang','Simple English')">Simple English</span>
+    <span class="opill"    onclick="pick(this,'ex-lang-opts','ex_lang','Technical English')">Technical</span>
+  </div>
+  <div class="chips">
+    <span class="chip" onclick="sv('ex-inp','How does a transistor work?')">Transistor</span>
+    <span class="chip" onclick="sv('ex-inp','What is entropy in thermodynamics?')">Entropy</span>
+    <span class="chip" onclick="sv('ex-inp','How does DNA replication work?')">DNA Replication</span>
+    <span class="chip" onclick="sv('ex-inp','How does an induction motor work?')">Induction Motor</span>
+    <span class="chip" onclick="sv('ex-inp','What is stress and strain in material science?')">Stress & Strain</span>
+    <span class="chip" onclick="sv('ex-inp','How does PID controller work?')">PID Controller</span>
+  </div>
+  <div class="icard">
+    <textarea id="ex-inp" placeholder="What concept do you want to understand deeply?" rows="3" onkeydown="ek(event,runEx)"></textarea>
+    <div class="ibar">
+      <div class="ibar-l">
+        <button class="ico" id="at-ex" onclick="af('ex')" title="Attach file">📎</button>
+        <span id="fn-ex" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        <span class="deep-lnk on">🔍 Deep explain</span>
+      </div>
+      <div class="ibar-r">
+        <button class="sbtn" id="ex-btn" onclick="runEx()">↑</button>
+      </div>
+    </div>
+  </div>
+  <div class="fhint">Upload PDF, image (JPG/PNG), TXT · Max 10MB</div>
+  <div class="frow" id="fr-ex"></div>
+  <div class="err" id="ex-err"></div>
+  <div class="owrap" id="ex-ow">
+    <div class="ocard">
+      <div class="ohdr"><div class="otitle"><div class="odot" style="background:var(--a4)"></div>Explanation</div>
+        <div style="display:flex;gap:.35rem"><button class="abtn" onclick="cp2('ex-ob')">📋 Copy</button><button class="abtn" onclick="document.getElementById('ex-ow').style.display='none'">✕</button></div></div>
+      <div class="lbar" id="ex-lb" style="display:none"></div>
+      <div class="obody" id="ex-ob"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AI NOTE ═══ -->
+<div class="pg" id="pg-note">
+  <div class="hero"><h1>AI Note</h1><p>Paste text or enter a topic — get summary, flashcards, quiz, mind map, timeline.</p></div>
+  <div class="opts" id="nt-type-opts">
+    <span class="olbl">Type:</span>
+    <span class="opill on" onclick="pick(this,'nt-type-opts','nt_type','summary')">📋 Summary</span>
+    <span class="opill"    onclick="pick(this,'nt-type-opts','nt_type','flashcards')">🃏 Flashcards</span>
+    <span class="opill"    onclick="pick(this,'nt-type-opts','nt_type','quiz')">❓ Quiz</span>
+    <span class="opill"    onclick="pick(this,'nt-type-opts','nt_type','mindmap')">🧠 Mind Map</span>
+    <span class="opill"    onclick="pick(this,'nt-type-opts','nt_type','timeline')">📅 Timeline</span>
+  </div>
+  <div class="opts" id="nt-lang-opts">
+    <span class="olbl">Language:</span>
+    <span class="opill on" onclick="pick(this,'nt-lang-opts','nt_lang','English')">English</span>
+    <span class="opill"    onclick="pick(this,'nt-lang-opts','nt_lang','Hindi')">हिंदी</span>
+    <span class="opill"    onclick="pick(this,'nt-lang-opts','nt_lang','Hinglish')">Hinglish</span>
+    <span class="opill"    onclick="pick(this,'nt-lang-opts','nt_lang','Marathi')">मराठी</span>
+  </div>
+  <div class="icard">
+    <textarea id="nt-inp" placeholder="Paste lecture notes, article, or just type a topic…" rows="5" onkeydown="ek(event,runNote)"></textarea>
+    <div class="ibar">
+      <div class="ibar-l">
+        <button class="ico" id="at-note" onclick="af('note')" title="Attach file">📎</button>
+        <span id="fn-note" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      </div>
+      <div class="ibar-r">
+        <button class="sbtn" id="nt-btn" onclick="runNote()">↑</button>
+      </div>
+    </div>
+  </div>
+  <div class="fhint">Upload PDF, image (JPG/PNG), TXT, CSV · Max 10MB</div>
+  <div class="frow" id="fr-note"></div>
+  <div class="err" id="nt-err"></div>
+  <div class="owrap" id="nt-ow">
+    <div class="ocard">
+      <div class="ohdr"><div class="otitle"><div class="odot" style="background:var(--a5)"></div>Notes</div>
+        <div style="display:flex;gap:.35rem"><button class="abtn" onclick="cp2('nt-ob')">📋 Copy</button><button class="abtn" onclick="document.getElementById('nt-ow').style.display='none'">✕</button></div></div>
+      <div class="lbar" id="nt-lb" style="display:none"></div>
+      <div class="obody" id="nt-ob"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AI CHAT ═══ -->
+<div class="pg" id="pg-chat">
+  <div class="hero"><h1>AI Chat</h1><p>Research, code, learn — and much more.</p></div>
+  <div class="opts" id="ch-lang-opts">
+    <span class="olbl">Reply in:</span>
+    <span class="opill on" onclick="pick(this,'ch-lang-opts','ch_lang','English')">English</span>
+    <span class="opill"    onclick="pick(this,'ch-lang-opts','ch_lang','Hindi')">हिंदी</span>
+    <span class="opill"    onclick="pick(this,'ch-lang-opts','ch_lang','Hinglish')">Hinglish</span>
+    <span class="opill"    onclick="pick(this,'ch-lang-opts','ch_lang','Marathi')">मराठी</span>
+    <span class="opill"    onclick="pick(this,'ch-lang-opts','ch_lang','Auto')">Auto Detect</span>
+  </div>
+  <div class="combo-bar">
+    <span class="combo-lbl">Mode:</span>
+    <button class="cmode-btn on" id="cm-single"   onclick="setCMode('single',this)"><span class="dot"></span>Single AI</button>
+    <button class="cmode-btn"    id="cm-mixture"  onclick="setCMode('mixture',this)">🔀 Mixture</button>
+    <button class="cmode-btn"    id="cm-crosscheck" onclick="setCMode('crosscheck',this)">✅ Cross-check</button>
+    <button class="cmode-btn"    id="cm-panel"    onclick="setCMode('panel',this)">📊 Panel</button>
+    <button class="cmode-btn"    id="cm-fastest"  onclick="setCMode('fastest',this)">⚡ Fastest</button>
+  </div>
+  <div class="cwrap">
+    <div class="cwin" id="ch-win">
+      <div class="cmsg a">👋 Hello! I'm your AI STEM assistant. Ask me anything about science, math, engineering, or technology!</div>
+    </div>
+    <div class="icard">
+      <textarea id="ch-inp" placeholder="Type a message…" rows="3" onkeydown="chKey(event)"></textarea>
+      <div class="ibar">
+        <div class="ibar-l">
+          <button class="ico" id="at-chat" onclick="af('chat')" title="Add PDF, image">📎</button>
+          <span id="fn-chat" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <span class="deep-lnk" id="deep-toggle" onclick="toggleDeep()" title="Deep explain mode">🔍 Deep explain</span>
+        </div>
+        <div class="ibar-r">
+          <div style="position:relative" id="ch-mpill">
+            <button class="mpill" onclick="td('md-chat')"><span id="ml-chat">GPT-4o Mini</span><span class="arr">▼</span></button>
+            <div class="mdrop" id="md-chat"></div>
+          </div>
+          <button class="sbtn" id="ch-btn" onclick="chatSend()">↑</button>
+        </div>
+      </div>
+    </div>
+    <div class="fhint">Add PDF, image (JPG, PNG), website and text files</div>
+    <div class="frow" id="fr-chat"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:.4rem"><button class="abtn" onclick="clearChat()">🗑 Clear Chat</button></div>
+  </div>
+</div>
+
+<!-- ═══ REPORT WRITER ═══ -->
+<div class="pg" id="pg-report">
+  <div class="hero"><h1>AI Report Writer</h1><p>Lab reports, research papers, project reports — written in seconds.</p></div>
+  <div class="opts" id="rp-type-opts">
+    <span class="olbl">Type:</span>
+    <span class="opill on" onclick="pick(this,'rp-type-opts','rp_type','lab')">🔬 Lab Report</span>
+    <span class="opill"    onclick="pick(this,'rp-type-opts','rp_type','research')">📚 Research</span>
+    <span class="opill"    onclick="pick(this,'rp-type-opts','rp_type','project')">🛠 Project</span>
+    <span class="opill"    onclick="pick(this,'rp-type-opts','rp_type','case')">📋 Case Study</span>
+    <span class="opill"    onclick="pick(this,'rp-type-opts','rp_type','analysis')">📊 Analysis</span>
+  </div>
+  <div class="opts" id="rp-len-opts">
+    <span class="olbl">Length:</span>
+    <span class="opill on" onclick="pick(this,'rp-len-opts','rp_len','medium')">Medium</span>
+    <span class="opill"    onclick="pick(this,'rp-len-opts','rp_len','short')">Short</span>
+    <span class="opill"    onclick="pick(this,'rp-len-opts','rp_len','detailed')">Detailed</span>
+  </div>
+  <div class="opts" id="rp-lang-opts">
+    <span class="olbl">Language:</span>
+    <span class="opill on" onclick="pick(this,'rp-lang-opts','rp_lang','English')">English</span>
+    <span class="opill"    onclick="pick(this,'rp-lang-opts','rp_lang','Hindi')">हिंदी</span>
+    <span class="opill"    onclick="pick(this,'rp-lang-opts','rp_lang','Hinglish')">Hinglish</span>
+    <span class="opill"    onclick="pick(this,'rp-lang-opts','rp_lang','Marathi')">मराठी</span>
+  </div>
+  <div class="chips">
+    <span class="chip" onclick="sv('rp-inp','Ohm\'s Law Verification Experiment')">Ohm's Law Lab</span>
+    <span class="chip" onclick="sv('rp-inp','Solar Energy as Renewable Resource')">Solar Energy</span>
+    <span class="chip" onclick="sv('rp-inp','Water Purification Methods Comparison')">Water Purification</span>
+    <span class="chip" onclick="sv('rp-inp','Jig and Fixture Design for Drilling Operation')">Jig Fixture</span>
+  </div>
+  <div class="icard">
+    <textarea id="rp-inp" placeholder="Enter report topic, title, or key points…" rows="4" onkeydown="ek(event,runReport)"></textarea>
+    <div class="ibar">
+      <div class="ibar-l">
+        <button class="ico" id="at-report" onclick="af('report')" title="Attach reference">📎</button>
+        <span id="fn-report" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      </div>
+      <div class="ibar-r">
+        <button class="sbtn" id="rp-btn" onclick="runReport()">↑</button>
+      </div>
+    </div>
+  </div>
+  <div class="fhint">Upload reference PDF, image, TXT, CSV · Max 10MB</div>
+  <div class="frow" id="fr-report"></div>
+  <div class="err" id="rp-err"></div>
+  <div class="owrap" id="rp-ow">
+    <div class="ocard">
+      <div class="ohdr"><div class="otitle"><div class="odot" style="background:var(--a2)"></div>Report</div>
+        <div style="display:flex;gap:.35rem"><button class="abtn" onclick="cp2('rp-ob')">📋 Copy</button><button class="abtn" onclick="document.getElementById('rp-ow').style.display='none'">✕</button></div></div>
+      <div class="lbar" id="rp-lb" style="display:none"></div>
+      <div class="obody" id="rp-ob"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MECHANICAL ENGG ═══ -->
+<div class="pg" id="pg-mech">
+  <div class="hero"><h1>Mechanical Engineering</h1><p>SPM · Beam · Bolt · Gear · Material · Units · Tolerance · AutoCAD · Drawing</p></div>
+  <div class="stabs">
+    <button class="stab on" onclick="gm('spm',this)">🏭 SPM/Jigs</button>
+    <button class="stab" onclick="gm('beam',this)">📐 Beam</button>
+    <button class="stab" onclick="gm('bolt',this)">🔩 Bolt</button>
+    <button class="stab" onclick="gm('gear',this)">⚙️ Gear</button>
+    <button class="stab" onclick="gm('mat',this)">🔧 Material</button>
+    <button class="stab" onclick="gm('unit',this)">📏 Units</button>
+    <button class="stab" onclick="gm('tol',this)">📊 Tolerance</button>
+    <button class="stab" onclick="gm('cad',this)">✏️ AutoCAD</button>
+    <button class="stab" onclick="gm('draw',this)">📋 Drawing</button>
+  </div>
+
+  <!-- SPM -->
+  <div class="msub on" id="ms-spm">
+    <div class="opts" id="spm-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'spm-lang-opts','spm_lang','English')">English</span><span class="opill" onclick="pick(this,'spm-lang-opts','spm_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'spm-lang-opts','spm_lang','Hinglish')">Hinglish</span></div>
+    <div class="chips" style="justify-content:center"><span class="chip" onclick="sv('spm-inp','Drill jig for 4 holes 10mm dia on 50x50mm flange, batch 500/day')">Drill Jig</span><span class="chip" onclick="sv('spm-inp','Punching SPM for 8mm holes in 3mm MS sheet at 25mm pitch')">Punching SPM</span><span class="chip" onclick="sv('spm-inp','Welding fixture for rectangular MS frame 300x200mm')">Weld Fixture</span><span class="chip" onclick="sv('spm-inp','Milling fixture CI block 200x100mm flat surface')">Mill Fixture</span></div>
+    <div class="icard">
+      <textarea id="spm-inp" placeholder="Describe your SPM / Jig / Fixture requirement…&#10;Include: Component, operation, material, batch size, tolerance" rows="5" onkeydown="ek(event,()=>runM('spm'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-spm" onclick="af('spm')" title="Attach drawing">📎</button><span id="fn-spm" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="spm-btn" onclick="runM('spm')">↑</button></div>
+      </div>
+    </div>
+    <div class="fhint">Upload drawing image (JPG/PNG), PDF, or TXT · Max 10MB</div><div class="frow" id="fr-spm"></div>
+    <div class="err" id="spm-err"></div>
+    <div class="owrap" id="spm-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#fb923c"></div>SPM Design</div><button class="abtn" onclick="cp2('spm-ob')">📋 Copy</button></div><div class="lbar" id="spm-lb" style="display:none"></div><div class="obody" id="spm-ob"></div></div></div>
+  </div>
+
+  <!-- BEAM -->
+  <div class="msub" id="ms-beam">
+    <div class="opts" id="bm-type-opts" style="justify-content:center"><span class="olbl">Beam:</span><span class="opill on" onclick="pick(this,'bm-type-opts','bm_type','Simply Supported')">Simply Supported</span><span class="opill" onclick="pick(this,'bm-type-opts','bm_type','Cantilever')">Cantilever</span><span class="opill" onclick="pick(this,'bm-type-opts','bm_type','Fixed-Fixed')">Fixed-Fixed</span><span class="opill" onclick="pick(this,'bm-type-opts','bm_type','Overhanging')">Overhanging</span></div>
+    <div class="opts" id="bm-load-opts" style="justify-content:center"><span class="olbl">Load:</span><span class="opill on" onclick="pick(this,'bm-load-opts','bm_load','Point Load')">Point Load</span><span class="opill" onclick="pick(this,'bm-load-opts','bm_load','UDL')">UDL</span><span class="opill" onclick="pick(this,'bm-load-opts','bm_load','Multiple Loads')">Multiple</span><span class="olbl" style="margin-left:.5rem">Section:</span><span class="opill on" onclick="pick(this,'bm-load-opts','bm_sec','Rectangular')">Rect</span><span class="opill" onclick="pick(this,'bm-load-opts','bm_sec','I-Section')">I-Section</span><span class="opill" onclick="pick(this,'bm-load-opts','bm_sec','Circular')">Circular</span></div>
+    <div class="opts" id="bm-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'bm-lang-opts','bm_lang','English')">English</span><span class="opill" onclick="pick(this,'bm-lang-opts','bm_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'bm-lang-opts','bm_lang','Hinglish')">Hinglish</span></div>
+    <div class="icard">
+      <textarea id="beam-inp" placeholder="Enter beam parameters:&#10;Span (L): 3 m&#10;Load (W): 10 kN&#10;Material: Mild Steel (E=200 GPa)&#10;Section: 100mm x 200mm" rows="5" onkeydown="ek(event,()=>runM('beam'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-beam" onclick="af('beam')" title="Attach">📎</button><span id="fn-beam" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="beam-btn" onclick="runM('beam')">↑</button></div>
+      </div>
+    </div>
+    <div class="fhint">Upload problem image or PDF · Max 10MB</div><div class="frow" id="fr-beam"></div>
+    <div class="err" id="beam-err"></div>
+    <div class="owrap" id="beam-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#34d399"></div>Beam Analysis</div><button class="abtn" onclick="cp2('beam-ob')">📋 Copy</button></div><div class="lbar" id="beam-lb" style="display:none"></div><div class="obody" id="beam-ob"></div></div></div>
+  </div>
+
+  <!-- BOLT -->
+  <div class="msub" id="ms-bolt">
+    <div class="opts" id="bt-grade-opts" style="justify-content:center"><span class="olbl">Grade:</span><span class="opill on" onclick="pick(this,'bt-grade-opts','bt_grade','4.6')">4.6</span><span class="opill" onclick="pick(this,'bt-grade-opts','bt_grade','8.8')">8.8</span><span class="opill" onclick="pick(this,'bt-grade-opts','bt_grade','10.9')">10.9</span><span class="opill" onclick="pick(this,'bt-grade-opts','bt_grade','12.9')">12.9</span><span class="opill" onclick="pick(this,'bt-grade-opts','bt_grade','A2-70')">A2-70 SS</span></div>
+    <div class="opts" id="bt-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'bt-lang-opts','bt_lang','English')">English</span><span class="opill" onclick="pick(this,'bt-lang-opts','bt_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'bt-lang-opts','bt_lang','Hinglish')">Hinglish</span></div>
+    <div class="chips" style="justify-content:center"><span class="chip" onclick="sv('bolt-inp','M16 bolt Grade 8.8 tensile load 50kN, check stress and torque')">M16 Tensile</span><span class="chip" onclick="sv('bolt-inp','4 bolts M12 Grade 4.6 shear, flange joint, 30kN total')">Shear Joint</span><span class="chip" onclick="sv('bolt-inp','Foundation bolt M24 machine bed, 80kN vibration load')">Foundation</span></div>
+    <div class="icard">
+      <textarea id="bolt-inp" placeholder="Describe bolt/fastener problem:&#10;Bolt size: M16, Grade: 8.8&#10;Applied force: 50 kN&#10;Loading: Shear / Tensile / Combined" rows="4" onkeydown="ek(event,()=>runM('bolt'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-bolt" onclick="af('bolt')" title="Attach">📎</button><span id="fn-bolt" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="bolt-btn" onclick="runM('bolt')">↑</button></div>
+      </div>
+    </div>
+    <div class="frow" id="fr-bolt"></div><div class="err" id="bolt-err"></div>
+    <div class="owrap" id="bolt-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#60a5fa"></div>Bolt Analysis</div><button class="abtn" onclick="cp2('bolt-ob')">📋 Copy</button></div><div class="lbar" id="bolt-lb" style="display:none"></div><div class="obody" id="bolt-ob"></div></div></div>
+  </div>
+
+  <!-- GEAR -->
+  <div class="msub" id="ms-gear">
+    <div class="opts" id="gr-type-opts" style="justify-content:center"><span class="olbl">Type:</span><span class="opill on" onclick="pick(this,'gr-type-opts','gr_type','Spur')">Spur</span><span class="opill" onclick="pick(this,'gr-type-opts','gr_type','Helical')">Helical</span><span class="opill" onclick="pick(this,'gr-type-opts','gr_type','Bevel')">Bevel</span><span class="opill" onclick="pick(this,'gr-type-opts','gr_type','Worm')">Worm</span><span class="opill" onclick="pick(this,'gr-type-opts','gr_type','Rack & Pinion')">Rack & Pinion</span></div>
+    <div class="opts" id="gr-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'gr-lang-opts','gr_lang','English')">English</span><span class="opill" onclick="pick(this,'gr-lang-opts','gr_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'gr-lang-opts','gr_lang','Hinglish')">Hinglish</span></div>
+    <div class="chips" style="justify-content:center"><span class="chip" onclick="sv('gear-inp','Spur gear pair 5kW 1450RPM ratio 5:1 C45 steel')">5kW Gear</span><span class="chip" onclick="sv('gear-inp','Worm gear 10:1 ratio 2kW 960RPM self-locking')">Worm 10:1</span><span class="chip" onclick="sv('gear-inp','Shaft design 5kW 1000RPM 200mm span simply supported')">Shaft Design</span></div>
+    <div class="icard">
+      <textarea id="gear-inp" placeholder="Enter gear/shaft parameters:&#10;Power: 5 kW, Input speed: 1450 RPM&#10;Ratio: 5:1, Material: C45 steel" rows="4" onkeydown="ek(event,()=>runM('gear'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-gear" onclick="af('gear')" title="Attach">📎</button><span id="fn-gear" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="gear-btn" onclick="runM('gear')">↑</button></div>
+      </div>
+    </div>
+    <div class="frow" id="fr-gear"></div><div class="err" id="gear-err"></div>
+    <div class="owrap" id="gear-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#a78bfa"></div>Gear Design</div><button class="abtn" onclick="cp2('gear-ob')">📋 Copy</button></div><div class="lbar" id="gear-lb" style="display:none"></div><div class="obody" id="gear-ob"></div></div></div>
+  </div>
+
+  <!-- MATERIAL -->
+  <div class="msub" id="ms-mat">
+    <div class="opts" id="mt-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'mt-lang-opts','mt_lang','English')">English</span><span class="opill" onclick="pick(this,'mt-lang-opts','mt_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'mt-lang-opts','mt_lang','Hinglish')">Hinglish</span></div>
+    <div class="chips" style="justify-content:center"><span class="chip" onclick="sv('mat-inp','Compare EN8 EN24 EN31 for shaft')">Shaft Steels</span><span class="chip" onclick="sv('mat-inp','IS 2062 E250 E350 structural steel')">IS 2062</span><span class="chip" onclick="sv('mat-inp','Grey CI vs SG Iron vs White CI')">Cast Iron</span><span class="chip" onclick="sv('mat-inp','Al 6061 vs 7075 for manufacturing')">Aluminium</span><span class="chip" onclick="sv('mat-inp','Annealing normalizing hardening tempering on MS')">Heat Treatment</span></div>
+    <div class="icard">
+      <textarea id="mat-inp" placeholder="Enter material name, grade, or comparison query…&#10;Example: Properties of C45 steel for gear application" rows="4" onkeydown="ek(event,()=>runM('mat'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-mat" onclick="af('mat')" title="Attach">📎</button><span id="fn-mat" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="mat-btn" onclick="runM('mat')">↑</button></div>
+      </div>
+    </div>
+    <div class="frow" id="fr-mat"></div><div class="err" id="mat-err"></div>
+    <div class="owrap" id="mat-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#f59e0b"></div>Material Data</div><button class="abtn" onclick="cp2('mat-ob')">📋 Copy</button></div><div class="lbar" id="mat-lb" style="display:none"></div><div class="obody" id="mat-ob"></div></div></div>
+  </div>
+
+  <!-- UNIT CONVERTER -->
+  <div class="msub" id="ms-unit">
+    <div class="ucg">
+      <div class="ucc"><div class="uctit" style="color:#22d3ee">📏 Length</div><input class="uci" id="uc-mm" type="number" placeholder="mm" oninput="ucL(this,'mm')"/><input class="uci" id="uc-cm" type="number" placeholder="cm" oninput="ucL(this,'cm')"/><input class="uci" id="uc-m" type="number" placeholder="m" oninput="ucL(this,'m')"/><input class="uci" id="uc-in" type="number" placeholder="inch" oninput="ucL(this,'in')"/><input class="uci" id="uc-ft" type="number" placeholder="feet" oninput="ucL(this,'ft')"/></div>
+      <div class="ucc"><div class="uctit" style="color:#f97316">⚡ Force</div><input class="uci" id="uc-n" type="number" placeholder="N" oninput="ucF(this,'n')"/><input class="uci" id="uc-kn" type="number" placeholder="kN" oninput="ucF(this,'kn')"/><input class="uci" id="uc-kgf" type="number" placeholder="kgf" oninput="ucF(this,'kgf')"/><input class="uci" id="uc-lbf" type="number" placeholder="lbf" oninput="ucF(this,'lbf')"/><input class="uci" id="uc-ton" type="number" placeholder="ton-force" oninput="ucF(this,'ton')"/></div>
+      <div class="ucc"><div class="uctit" style="color:#a78bfa">🔵 Pressure/Stress</div><input class="uci" id="uc-pa" type="number" placeholder="Pa" oninput="ucP(this,'pa')"/><input class="uci" id="uc-mpa" type="number" placeholder="MPa (N/mm²)" oninput="ucP(this,'mpa')"/><input class="uci" id="uc-gpa" type="number" placeholder="GPa" oninput="ucP(this,'gpa')"/><input class="uci" id="uc-psi" type="number" placeholder="PSI" oninput="ucP(this,'psi')"/><input class="uci" id="uc-bar" type="number" placeholder="bar" oninput="ucP(this,'bar')"/><input class="uci" id="uc-kgmm" type="number" placeholder="kgf/mm²" oninput="ucP(this,'kgmm')"/></div>
+      <div class="ucc"><div class="uctit" style="color:#34d399">🔄 Torque</div><input class="uci" id="uc-nm" type="number" placeholder="N·m" oninput="ucT(this,'nm')"/><input class="uci" id="uc-knm" type="number" placeholder="kN·m" oninput="ucT(this,'knm')"/><input class="uci" id="uc-nmm" type="number" placeholder="N·mm" oninput="ucT(this,'nmm')"/><input class="uci" id="uc-kgm" type="number" placeholder="kgf·m" oninput="ucT(this,'kgm')"/><input class="uci" id="uc-lbft" type="number" placeholder="lb·ft" oninput="ucT(this,'lbft')"/></div>
+      <div class="ucc"><div class="uctit" style="color:#fb923c">⚙️ Power</div><input class="uci" id="uc-w" type="number" placeholder="Watt" oninput="ucPow(this,'w')"/><input class="uci" id="uc-kw" type="number" placeholder="kW" oninput="ucPow(this,'kw')"/><input class="uci" id="uc-hp" type="number" placeholder="HP (metric)" oninput="ucPow(this,'hp')"/><input class="uci" id="uc-hpi" type="number" placeholder="HP (imperial)" oninput="ucPow(this,'hpi')"/></div>
+      <div class="ucc"><div class="uctit" style="color:#f43f5e">🌡️ Temperature</div><input class="uci" id="uc-c" type="number" placeholder="°C" oninput="ucTe(this,'c')"/><input class="uci" id="uc-f" type="number" placeholder="°F" oninput="ucTe(this,'f')"/><input class="uci" id="uc-k" type="number" placeholder="K Kelvin" oninput="ucTe(this,'k')"/></div>
+    </div>
+    <button class="abtn" style="margin-top:.6rem" onclick="resetUC()">🔄 Reset All</button>
+  </div>
+
+  <!-- TOLERANCE -->
+  <div class="msub" id="ms-tol">
+    <div class="opts" id="tl-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'tl-lang-opts','tl_lang','English')">English</span><span class="opill" onclick="pick(this,'tl-lang-opts','tl_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'tl-lang-opts','tl_lang','Hinglish')">Hinglish</span></div>
+    <div class="chips" style="justify-content:center"><span class="chip" onclick="sv('tol-inp','40mm H7/p6 hole and shaft limits fit type')">H7/p6 40mm</span><span class="chip" onclick="sv('tol-inp','25mm H7/k6 bearing fit limits and assembly')">H7/k6 Bearing</span><span class="chip" onclick="sv('tol-inp','50mm H8/f7 clearance fit for sliding')">H8/f7 Sliding</span><span class="chip" onclick="sv('tol-inp','30mm H7/s6 press fit bush')">H7/s6 Press</span></div>
+    <div class="icard">
+      <textarea id="tol-inp" placeholder="Enter tolerance query…&#10;Example: 50mm H7/g6 — deviations, limits, clearance values&#10;Example: What tolerance for ball bearing inner race?" rows="4" onkeydown="ek(event,()=>runM('tol'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-tol" onclick="af('tol')" title="Attach drawing">📎</button><span id="fn-tol" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="tol-btn" onclick="runM('tol')">↑</button></div>
+      </div>
+    </div>
+    <div class="frow" id="fr-tol"></div><div class="err" id="tol-err"></div>
+    <div class="owrap" id="tol-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#e879f9"></div>Tolerance Data</div><button class="abtn" onclick="cp2('tol-ob')">📋 Copy</button></div><div class="lbar" id="tol-lb" style="display:none"></div><div class="obody" id="tol-ob"></div></div></div>
+  </div>
+
+  <!-- AUTOCAD -->
+  <div class="msub" id="ms-cad">
+    <div class="opts" id="cad-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'cad-lang-opts','cad_lang','English')">English</span><span class="opill" onclick="pick(this,'cad-lang-opts','cad_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'cad-lang-opts','cad_lang','Hinglish')">Hinglish</span></div>
+    <div class="chips" style="justify-content:center"><span class="chip" onclick="sv('cad-inp','Circular array 6 holes on 100mm PCD in AutoCAD')">Circular Array</span><span class="chip" onclick="sv('cad-inp','GD&T symbols in AutoCAD mechanical drawing')">GD&T</span><span class="chip" onclick="sv('cad-inp','PNG to DXF conversion workflow AutoCAD')">PNG to DXF</span><span class="chip" onclick="sv('cad-inp','ARCTEXT circular nameplate text AutoCAD')">ARCTEXT</span><span class="chip" onclick="sv('cad-inp','Hatch patterns cast iron steel brass section views')">Hatch Patterns</span></div>
+    <div class="icard">
+      <textarea id="cad-inp" placeholder="Ask anything about AutoCAD…&#10;Example: How to draw hexagon M16 bolt head?&#10;Example: Command for spring symbol in 2D drawing" rows="4" onkeydown="ek(event,()=>runM('cad'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-cad" onclick="af('cad')" title="Attach screenshot">📎</button><span id="fn-cad" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="cad-btn" onclick="runM('cad')">↑</button></div>
+      </div>
+    </div>
+    <div class="fhint">Upload AutoCAD screenshot or drawing image · Max 10MB</div><div class="frow" id="fr-cad"></div><div class="err" id="cad-err"></div>
+    <div class="owrap" id="cad-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#38bdf8"></div>AutoCAD Answer</div><button class="abtn" onclick="cp2('cad-ob')">📋 Copy</button></div><div class="lbar" id="cad-lb" style="display:none"></div><div class="obody" id="cad-ob"></div></div></div>
+  </div>
+
+  <!-- DRAWING STANDARDS -->
+  <div class="msub" id="ms-draw">
+    <div class="opts" id="dr-lang-opts" style="justify-content:center"><span class="olbl">Language:</span><span class="opill on" onclick="pick(this,'dr-lang-opts','dr_lang','English')">English</span><span class="opill" onclick="pick(this,'dr-lang-opts','dr_lang','Hindi')">हिंदी</span><span class="opill" onclick="pick(this,'dr-lang-opts','dr_lang','Hinglish')">Hinglish</span></div>
+    <div class="chips" style="justify-content:center"><span class="chip" onclick="sv('draw-inp','First angle vs third angle projection examples')">1st vs 3rd Angle</span><span class="chip" onclick="sv('draw-inp','GD&T symbols flatness perpendicularity runout position')">GD&T Complete</span><span class="chip" onclick="sv('draw-inp','Surface finish Ra Rz symbols IS/ISO standard')">Surface Finish</span><span class="chip" onclick="sv('draw-inp','IS 696 drawing conventions lines dimensions')">IS 696</span><span class="chip" onclick="sv('draw-inp','Welding symbols engineering drawings IS/AWS')">Welding Symbols</span></div>
+    <div class="icard">
+      <textarea id="draw-inp" placeholder="Ask about engineering drawing standards…&#10;Example: How to dimension a chamfer?&#10;Example: Thread simplified vs detailed representation" rows="4" onkeydown="ek(event,()=>runM('draw'))"></textarea>
+      <div class="ibar">
+        <div class="ibar-l"><button class="ico" id="at-draw" onclick="af('draw')" title="Attach drawing">📎</button><span id="fn-draw" style="font-size:.66rem;color:var(--a3);font-family:'JetBrains Mono',monospace;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span></div>
+        <div class="ibar-r"><button class="sbtn" id="draw-btn" onclick="runM('draw')">↑</button></div>
+      </div>
+    </div>
+    <div class="fhint">Upload drawing image or PDF for analysis · Max 10MB</div><div class="frow" id="fr-draw"></div><div class="err" id="draw-err"></div>
+    <div class="owrap" id="draw-ow"><div class="ocard"><div class="ohdr"><div class="otitle"><div class="odot" style="background:#a3e635"></div>Drawing Guide</div><button class="abtn" onclick="cp2('draw-ob')">📋 Copy</button></div><div class="lbar" id="draw-lb" style="display:none"></div><div class="obody" id="draw-ob"></div></div></div>
+  </div>
+
+</div><!-- /pg-mech -->
+
+<div class="toast" id="toast">✓</div>
+
+<script>
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+const S = {}; // all option states: S.so_lang, S.ex_level etc.
+const toolFiles = {};
+let chatH = [], deepMode = false, currentSVG = '';
+
+const MODELS = [
+  {l:'GPT-4o Mini',   v:'gpt-4o-mini',  c:'#10a37f'},
+  {l:'GPT-4o',        v:'gpt-4o',        c:'#10a37f'},
+  {l:'Gemini Flash',  v:'gemini-2.0-flash', c:'#4285f4'},
+  {l:'DeepSeek V3',   v:'deepseek-chat', c:'#5b6cf8'},
+  {l:'Claude Sonnet', v:'claude-sonnet-4-5', c:'#d4a574'},
+  {l:'Grok Beta',     v:'grok-beta',     c:'#1d9bf0'},
+];
+const toolModel = {solver:'gpt-4o-mini', chat:'gpt-4o-mini'};
+
+
+// ═══ GPAI AI MODES ═══
+const AI_MODES = [
+  {id:'mixture', icon:'🤖', bg:'#2a2d35', name:'Mixture of AI',       desc:'Auto-selects the optimal image AI model', prompt_style:'professional, highly detailed, best quality'},
+  {id:'graph',   icon:'📊', bg:'#1a2535', name:'Graph AI',             desc:'For mathematical graphs and plots',         prompt_style:'clean mathematical graph/plot with labeled axes, grid lines, data points, legend'},
+  {id:'flowchart',icon:'🔀',bg:'#1a2a1a', name:'Flowchart AI',         desc:'For flowcharts and diagrams',               prompt_style:'clean professional flowchart with decision diamonds, process rectangles, arrows, connectors'},
+  {id:'diagram',  icon:'🔲',bg:'#252535', name:'Diagram AI',           desc:'For technical diagrams',                    prompt_style:'detailed technical diagram with labeled components, dimensions, callouts'},
+  {id:'circuit',  icon:'⚡',bg:'#1a2535', name:'Circuit AI',           desc:'For electronic circuit diagrams',           prompt_style:'professional electronic circuit schematic with standard symbols: resistors (zigzag), capacitors, inductors, voltage sources, transistors, op-amps, logic gates, labeled nodes and values'},
+  {id:'illus_f',  icon:'🎨',bg:'#2a1a35', name:'Illustration AI Flash',desc:'For illustrations and visual explanations',  prompt_style:'clear educational illustration with annotations, arrows, labels, clean style'},
+  {id:'illus_p',  icon:'🖼️',bg:'#2a1535', name:'Illustration AI Pro', desc:'Higher quality illustrations',              prompt_style:'high quality detailed illustration with rich visual elements, depth, shading, labels', badge:'Plus'},
+  {id:'chemistry',icon:'🧪',bg:'#1a2a1a', name:'Chemistry AI',         desc:'For chemical molecular formulas',           prompt_style:'accurate chemical structure diagram: molecular bonds (single/double/triple), atom symbols, ring structures, functional groups, IUPAC style'},
+  {id:'logic',    icon:'⚙️',bg:'#252520', name:'Logic AI',             desc:'For digital logic circuit diagrams',        prompt_style:'digital logic circuit with standard gate symbols (AND, OR, NOT, NAND, NOR, XOR, XNOR, D-FF, MUX), truth table reference, labeled inputs/outputs'},
+];
+
+let curAiMode = AI_MODES[0];
+
+function buildAiDrop() {
+  const drop = document.getElementById('ai-drop');
+  const title = drop.querySelector('.ai-drop-title');
+  AI_MODES.forEach((m,i)=>{
+    const div = document.createElement('div');
+    div.className = 'ai-item' + (i===0?' on':'') + (m.badge?' ':'') ;
+    div.id = 'ai-item-'+m.id;
+    div.innerHTML = `<div class="ai-item-ic" style="background:${m.bg}">${m.icon}</div>
+      <div class="ai-item-info">
+        <div class="ai-item-name">${m.name}${m.badge?`<span class="ai-badge">${m.badge}</span>`:''}</div>
+        <div class="ai-item-desc">${m.desc}</div>
+      </div>`;
+    if(!m.badge) div.onclick = ()=>selectAiMode(m);
+    else div.classList.add('disabled');
+    drop.appendChild(div);
+  });
+}
+
+function selectAiMode(mode) {
+  curAiMode = mode;
+  document.querySelectorAll('.ai-item').forEach(el=>el.classList.remove('on'));
+  document.getElementById('ai-item-'+mode.id)?.classList.add('on');
+  document.getElementById('ai-mode-icon').textContent = mode.icon;
+  document.getElementById('ai-mode-icon').style.background = mode.bg;
+  document.getElementById('ai-mode-label').textContent = mode.name;
+  document.getElementById('ai-mode-desc').textContent = mode.desc;
+  toggleAiDrop();
+  toast2('✓ '+mode.name+' selected');
+}
+
+function toggleAiDrop() {
+  document.getElementById('ai-drop').classList.toggle('on');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.ai-mode-wrap')) document.getElementById('ai-drop')?.classList.remove('on');
+});
+
+// ═══ INIT ═══
+window.onload = () => {
+  // init states
+  const defaults = {
+    so_lang:'English',vs_type:'circuit',vs_ratio:'700x450',
+    cs_lang:'English',ex_level:'basic',ex_lang:'English',
+    nt_type:'summary',nt_lang:'English',ch_lang:'English',
+    rp_type:'lab',rp_len:'medium',rp_lang:'English',
+    spm_lang:'English',bm_type:'Simply Supported',bm_load:'Point Load',bm_sec:'Rectangular',bm_lang:'English',
+    bt_grade:'4.6',bt_lang:'English',gr_type:'Spur',gr_lang:'English',
+    mt_lang:'English',tl_lang:'English',cad_lang:'English',dr_lang:'English',
+  };
+  Object.assign(S, defaults);
+  buildDrops();
+  buildAiDrop();
+};
+
+// ═══ AI CORE ═══
+async function ai(prompt, model='gpt-4o-mini') {
+  const r = await puter.ai.chat(prompt, {model});
+  if(typeof r === 'string') return r;
+  // Handle array content (Claude style)
+  if(Array.isArray(r?.content)) {
+    return r.content.map(c=> typeof c==='string' ? c : c?.text||'').join('');
+  }
+  if(typeof r?.content === 'string') return r.content;
+  if(typeof r?.message?.content === 'string') return r.message.content;
+  if(Array.isArray(r?.message?.content)) {
+    return r.message.content.map(c=> typeof c==='string' ? c : c?.text||'').join('');
+  }
+  if(typeof r?.text === 'string') return r.text;
+  // last resort
+  try { return JSON.stringify(r); } catch(e) { return String(r||''); }
+}
+
+async function aiImg(msgs, model='gpt-4o-mini') {
+  const r = await puter.ai.chat(msgs, {model});
+  if(typeof r === 'string') return r;
+  if(Array.isArray(r?.content)) return r.content.map(c=>typeof c==='string'?c:c?.text||'').join('');
+  if(typeof r?.content === 'string') return r.content;
+  if(typeof r?.message?.content === 'string') return r.message.content;
+  if(Array.isArray(r?.message?.content)) return r.message.content.map(c=>typeof c==='string'?c:c?.text||'').join('');
+  return String(r?.text || r || '');
+}
+
+// ═══ FILE ATTACH ═══
+function af(tid) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.multiple = true;
+  inp.accept = '.pdf,.txt,.csv,.jpg,.jpeg,.png,.webp';
+  inp.onchange = e => Array.from(e.target.files).slice(0,5).forEach(f => addFile(tid,f));
+  inp.click();
+}
+
+function addFile(tid, file) {
+  if(!file || file.size > 10*1024*1024) { toast2('Max 10MB per file!'); return; }
+  if(!toolFiles[tid]) toolFiles[tid] = [];
+  if(toolFiles[tid].length >= 5) { toast2('Max 5 files!'); return; }
+  const ext = file.name.split('.').pop().toLowerCase();
+  const isImg = ['jpg','jpeg','png','webp'].includes(ext);
+  const icons = {jpg:'🖼️',jpeg:'🖼️',png:'🖼️',webp:'🖼️',pdf:'📄',csv:'📊',txt:'📝'};
+  const r = new FileReader();
+  if(isImg) {
+    r.onload = e => { toolFiles[tid].push({name:file.name,isImg:true,b64:e.target.result.split(',')[1],mime:file.type,icon:icons[ext]}); refreshF(tid); };
+    r.readAsDataURL(file);
+  } else {
+    r.onload = e => { toolFiles[tid].push({name:file.name,isImg:false,text:(e.target.result||'').substring(0,5000),icon:icons[ext]||'📄'}); refreshF(tid); };
+    r.readAsText(file);
+  }
+}
+
+function refreshF(tid) {
+  const files = toolFiles[tid]||[];
+  const btn = document.getElementById('at-'+tid);
+  if(btn) btn.classList.toggle('on', files.length > 0);
+  const sp = document.getElementById('fn-'+tid);
+  if(sp) sp.textContent = files.length ? files.length+' file'+(files.length>1?'s':'') : '';
+  const fr = document.getElementById('fr-'+tid);
+  if(fr) fr.innerHTML = files.map((f,i)=>`<div class="fchip">${f.icon} ${f.name.substring(0,22)}<span class="fx" onclick="rmFile('${tid}',${i})">✕</span></div>`).join('');
+  toast2('✓ '+files[files.length-1].name);
+}
+
+function rmFile(tid, idx) {
+  if(toolFiles[tid]) toolFiles[tid].splice(idx,1);
+  refreshF(tid);
+}
+
+async function aiCtx(prompt, tid, model) {
+  model = model || toolModel[tid] || 'gpt-4o-mini';
+  const files = toolFiles[tid]||[];
+  if(!files.length) return await ai(prompt, model);
+  const imgs = files.filter(f=>f.isImg);
+  const texts = files.filter(f=>!f.isImg).map(f=>`\n--- ${f.name} ---\n${f.text}\n---`).join('');
+  const fullPrompt = prompt + texts;
+  if(imgs.length > 0) {
+    const content = imgs.map(f=>({type:'image_url',image_url:{url:`data:${f.mime};base64,${f.b64}`}}));
+    content.push({type:'text',text:fullPrompt});
+    return await aiImg([{role:'user',content}], model);
+  }
+  return await ai(fullPrompt, model);
+}
+
+// ═══ MD → HTML ═══
+function md(t) {
+  if(!t || typeof t !== 'string') return String(t||'');
+  return t
+    .replace(/^### (.*)/gm,'<h3>$1</h3>')
+    .replace(/^## (.*)/gm,'<h2>$1</h2>')
+    .replace(/^# (.*)/gm,'<h1>$1</h1>')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/^- (.*)/gm,'<li>$1</li>')
+    .replace(/^\d+\. (.*)/gm,'<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>\n?)+/g,m=>'<ul>'+m+'</ul>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/^(?!<[hul])/gm,'');
+}
+
+// ═══ UI HELPERS ═══
+function gp(id, btn) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+function gm(id, btn) {
+  document.querySelectorAll('.msub').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('ms-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+function pick(btn, groupId, key, val) {
+  document.getElementById(groupId).querySelectorAll('.opill').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  S[key] = val;
+}
+function sv(id, v) { document.getElementById(id).value = v; }
+function cp2(id) { navigator.clipboard.writeText(document.getElementById(id).innerText).then(()=>toast2('✓ Copied!')); }
+function toast2(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2000); }
+function ek(e, fn) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();fn();} }
+
+function td(id) {
+  document.querySelectorAll('.mdrop').forEach(d=>{if(d.id!==id)d.classList.remove('on');});
+  document.getElementById(id)?.classList.toggle('on');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.mpill'))document.querySelectorAll('.mdrop.on').forEach(d=>d.classList.remove('on'));});
+
+function buildDrops() {
+  ['solver','chat'].forEach(tid=>{
+    const el = document.getElementById('md-'+tid); if(!el)return;
+    el.innerHTML = MODELS.map(m=>`<div class="mdi ${m.v==='gpt-4o-mini'?'on':''}" onclick="pickModel('${tid}','${m.v}','${m.l}',this)"><div class="mdd" style="background:${m.c}"></div>${m.l}</div>`).join('');
+  });
+}
+function pickModel(tid, v, l, el) {
+  toolModel[tid]=v;
+  document.getElementById('ml-'+tid).textContent=l;
+  el.closest('.mdrop').querySelectorAll('.mdi').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  td('md-'+tid);
+}
+
+function startB(btnId, lbId) {
+  const b=document.getElementById(btnId);
+  b._t=b.innerHTML;b.innerHTML='<span class="spin"></span>';b.disabled=true;
+  if(lbId){const l=document.getElementById(lbId);if(l)l.style.display='block';}
+}
+function stopB(btnId, lbId) {
+  const b=document.getElementById(btnId);
+  b.innerHTML=b._t;b.disabled=false;
+  if(lbId){const l=document.getElementById(lbId);if(l)l.style.display='none';}
+}
+function showO(wId, oId, html) {
+  const w=document.getElementById(wId);if(w)w.style.display='block';
+  const o=document.getElementById(oId);if(o)o.innerHTML=md(html);
+}
+function showE(errId, msg) {
+  const e=document.getElementById(errId);if(e){e.textContent='⚠️ '+msg;e.style.display='block';}
+}
+
+// lang helper
+function li(lang) {
+  const m={Hindi:'Respond entirely in Hindi language.',Hinglish:'Respond in Hinglish (Hindi+English mix, use Hindi script).',Marathi:'Respond entirely in Marathi language.','Simple English':'Use very simple English, avoid jargon.','Technical English':'Use proper technical/engineering terminology.'};
+  return m[lang]||'';
+}
+
+// ═══════════════════════════════
+// TOOLS
+// ═══════════════════════════════
+
+// SOLVER
+async function runSolver() {
+  const inp = document.getElementById('so-inp').value.trim();
+  if(!inp){showE('so-err','Problem type karo!');return;}
+  document.getElementById('so-err').style.display='none';
+  startB('so-btn','so-lb');
+  document.getElementById('so-ow').style.display='block';
+  document.getElementById('so-ob').innerHTML='<div class="oempty">🔄 Solving...</div>';
+  try {
+    const txt = await aiCtx(`You are an expert STEM tutor. ${li(S.so_lang)}
+Solve this problem step by step:
+
+Problem: ${inp}
+
+Format:
+## Given Data
+## Step-by-Step Solution
+## Final Answer
+## Concept Used
+## Formula Applied
+
+Use clear mathematical notation. Show all working.`, 'solver', toolModel.solver);
+    showO('so-ow','so-ob',txt);
+  } catch(e){showE('so-err',e.message);}
+  finally{stopB('so-btn','so-lb');}
+}
+
+// VISUALIZER
+async function runVis() {
+  const inp = document.getElementById('vs-inp').value.trim();
+  if(!inp){showE('vs-err','Diagram describe karo!');return;}
+  document.getElementById('vs-err').style.display='none';
+  startB('vs-btn',null);
+  const out = document.getElementById('vs-out');
+  out.style.display='flex';out.innerHTML='<div class="oempty">🔄 Generating diagram...</div>';
+  const [w,h] = (S.vs_ratio||'700x450').split('x');
+  try {
+    const modeStyle = curAiMode.prompt_style;
+    const txt = await aiCtx(`Generate a clean professional SVG diagram.
+Return ONLY SVG code starting with <svg tag. No markdown, no explanation.
+viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"
+Background: fill="#181a1b"
+Colors: accent #f97316, cyan #38bdf8, green #a3e635, text #e6e8ea, grid lines #2e3033
+Style requirement: ${modeStyle}
+Diagram request: ${inp}
+Make it detailed, labeled, professional. Include proper ${curAiMode.name.replace(' AI','')} conventions.`, 'vis');
+    let svg = txt.replace(/```svg|```xml|```/g,'').trim();
+    const s=svg.indexOf('<svg'), e2=svg.lastIndexOf('</svg>')+6;
+    if(s===-1) throw new Error('SVG generate nahi hua. Description change karo.');
+    currentSVG = svg.slice(s,e2);
+    out.innerHTML = currentSVG;
+    document.getElementById('vs-act').style.display='flex';
+  } catch(e){
+    out.innerHTML='<div class="oempty">❌ '+e.message+'</div>';
+    showE('vs-err',e.message);
+  } finally{stopB('vs-btn',null);}
+}
+
+// CHEATSHEET
+async function runCS() {
+  const inp = document.getElementById('cs-inp').value.trim();
+  if(!inp){showE('cs-err','Topic batao!');return;}
+  document.getElementById('cs-err').style.display='none';
+  startB('cs-btn','cs-lb');
+  document.getElementById('cs-ow').style.display='block';
+  document.getElementById('cs-ob').innerHTML='<div class="oempty">📝 Building cheatsheet...</div>';
+  try {
+    const txt = await aiCtx(`Create a comprehensive exam-ready study cheatsheet. ${li(S.cs_lang)}
+Topic: "${inp}"
+
+## 📌 Key Concepts
+## 📐 Formulas & Equations
+## 🔑 Key Rules to Remember
+## ⚡ Quick Facts
+## 📝 Common Mistakes
+## 💡 Tips & Tricks
+## 🔗 Related Topics
+
+Be concise, exam-focused. Use **bold** for important terms.`, 'cs');
+    showO('cs-ow','cs-ob',txt);
+  } catch(e){showE('cs-err',e.message);}
+  finally{stopB('cs-btn','cs-lb');}
+}
+
+// DEEP EXPLAIN
+async function runEx() {
+  const inp = document.getElementById('ex-inp').value.trim();
+  if(!inp){showE('ex-err','Concept batao!');return;}
+  document.getElementById('ex-err').style.display='none';
+  startB('ex-btn','ex-lb');
+  document.getElementById('ex-ow').style.display='block';
+  document.getElementById('ex-ob').innerHTML='<div class="oempty">🔍 Deep explaining...</div>';
+  const levels = {
+    basic:`a complete beginner (8th grade level). Use very simple words, everyday analogies, no math.`,
+    easy:`a high school student. Use simple language, basic analogies, minimal math.`,
+    medium:`an undergraduate engineering student. Use proper terminology and basic math.`,
+    advanced:`an advanced student/professional. Use detailed theory, derivations, and applied math.`,
+    expert:`a graduate-level expert. Use deep mathematical analysis, proofs, and advanced concepts.`,
+    research:`a research scientist. Include current research context, open problems, mathematical rigor, citations style.`,
+  };
+  const lv = levels[S.ex_level||'basic'];
+  try {
+    const txt = await aiCtx(`Explain "${inp}" to ${lv}
+${li(S.ex_lang)}
+
+## 🎯 What is it? (1-line definition)
+## 🧠 Core Idea (with analogy)
+## ⚙️ How it works (step by step)
+## 📐 Key Formula / Math
+## 🌍 Real-world example / Application
+## 🔗 Related concepts
+${S.ex_level==='research'?'## 📚 Current Research & Open Problems':''}
+${S.ex_level==='expert'||S.ex_level==='research'?'## 📊 Mathematical Deep Dive':''}
+## 💡 Why it matters`, 'ex');
+    showO('ex-ow','ex-ob',txt);
+  } catch(e){showE('ex-err',e.message);}
+  finally{stopB('ex-btn','ex-lb');}
+}
+
+// AI NOTE
+async function runNote() {
+  const inp = document.getElementById('nt-inp').value.trim();
+  if(!inp){showE('nt-err','Topic ya notes dalo!');return;}
+  document.getElementById('nt-err').style.display='none';
+  startB('nt-btn','nt-lb');
+  document.getElementById('nt-ow').style.display='block';
+  document.getElementById('nt-ob').innerHTML='<div class="oempty">🔄 Generating...</div>';
+  const L = li(S.nt_lang||'English');
+  const prompts = {
+    summary:`Summarize into structured study notes. ${L}\nInclude: main concepts, key terms, examples, formulas.\nContent: ${inp}`,
+    flashcards:`Create 12 study flashcards. ${L}\nFormat each as:\n## 🃏 Flashcard N\n**Q:** question\n**A:** answer\nTopic: ${inp}`,
+    quiz:`Create a 10-question mixed quiz (MCQ + short answer + true/false). ${L} Include answers at end. Topic: ${inp}`,
+    mindmap:`Create a detailed text mind map. ${L}\nFormat:\n# 🧠 Central Topic\n## Branch 1\n- sub-point\n  - detail\n## Branch 2\n...\nTopic: ${inp}`,
+    timeline:`Create a detailed timeline. ${L}\nFormat:\n## 📅 [Year/Period] — Event Title\nBrief description of what happened and significance.\nTopic: ${inp}`,
+  };
+  try {
+    const txt = await aiCtx(prompts[S.nt_type||'summary'], 'note');
+    showO('nt-ow','nt-ob',txt);
+  } catch(e){showE('nt-err',e.message);}
+  finally{stopB('nt-btn','nt-lb');}
+}
+
+// REPORT
+async function runReport() {
+  const inp = document.getElementById('rp-inp').value.trim();
+  if(!inp){showE('rp-err','Topic batao!');return;}
+  document.getElementById('rp-err').style.display='none';
+  startB('rp-btn','rp-lb');
+  document.getElementById('rp-ow').style.display='block';
+  document.getElementById('rp-ob').innerHTML='<div class="oempty">📄 Writing report...</div>';
+  const types={lab:'lab report (Aim, Apparatus, Theory, Procedure, Observations, Results, Conclusion, Precautions)',research:'research report (Abstract, Introduction, Literature Review, Methodology, Results, Discussion, Conclusion, References)',project:'project report (Executive Summary, Objectives, Background, Design/Implementation, Testing, Results, Future Work)',case:'case study (Background, Problem Statement, Analysis, Solution, Implementation, Outcome, Lessons)',analysis:'technical analysis report (Executive Summary, Data Analysis, Findings, Interpretation, Recommendations)'};
+  const lens={short:'300-400 words',medium:'600-800 words',detailed:'900-1200 words'};
+  try {
+    const txt = await aiCtx(`Write a professional ${types[S.rp_type||'lab']} for: "${inp}"
+${li(S.rp_lang||'English')}
+Length: ${lens[S.rp_len||'medium']}
+Format with ## headings, proper structure, bullet points where needed, tables for data.`, 'report');
+    showO('rp-ow','rp-ob',txt);
+  } catch(e){showE('rp-err',e.message);}
+  finally{stopB('rp-btn','rp-lb');}
+}
+
+
+// ═══════════════════════════════
+// COMBO CHAT MODES
+// ═══════════════════════════════
+let comboMode = 'single';
+
+const COMBO_MODELS = [
+  {id:'gpt4o-mini', v:'gpt-4o-mini',      label:'GPT-4o Mini',   color:'#10a37f'},
+  {id:'gpt4o',      v:'gpt-4o',            label:'GPT-4o',        color:'#10a37f'},
+  {id:'gemini',     v:'gemini-2.0-flash',  label:'Gemini Flash',  color:'#4285f4'},
+  {id:'deepseek',   v:'deepseek-chat',     label:'DeepSeek V3',   color:'#5b6cf8'},
+  {id:'claude',     v:'claude-sonnet-4-5', label:'Claude Sonnet', color:'#d4a574'},
+  {id:'grok',       v:'grok-beta',         label:'Grok Beta',     color:'#1d9bf0'},
+];
+
+function setCMode(mode, btn) {
+  comboMode = mode;
+  document.querySelectorAll('.cmode-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  // hide/show model selector based on mode
+  const mpillWrap = document.getElementById('ch-mpill');
+  if(mpillWrap) mpillWrap.style.display = mode==='single' ? 'flex' : 'none';
+  toast2({single:'Single AI mode',mixture:'🔀 Mixture mode — best answer auto-pick',crosscheck:'✅ Cross-check mode — GPT + verify',panel:'📊 Panel mode — sabhi models dikhenge',fastest:'⚡ Fastest mode — jo pehle aaye'}[mode]||mode);
+}
+
+// ─── Single mode (existing) ───
+async function chatSendSingle(msg) {
+  const langInstr = li(S.ch_lang||'English');
+  const deepInstr = deepMode ? 'Provide a very detailed, deep explanation with examples, analogies, formulas, step-by-step breakdown. ' : '';
+  const sys = `You are a helpful AI STEM assistant. ${langInstr} ${deepInstr}`;
+  const hist = chatH.slice(-16).map(m=>`${m.role==='user'?'User':'AI'}: ${m.content}`).join('\n');
+  const reply = await aiCtx(sys+'\n\n'+hist, 'chat', toolModel.chat);
+  addMsg(reply,'a');
+  chatH.push({role:'assistant',content:reply});
+  if(chatH.length>20) chatH=chatH.slice(-20);
+}
+
+// ─── Mixture mode — all answer, AI picks best ───
+async function chatSendMixture(msg) {
+  const w = document.getElementById('ch-win');
+  // Show loading cards
+  const wrapId = 'multi-'+Date.now();
+  const wrap = document.createElement('div');
+  wrap.className = 'multi-wrap cols2'; wrap.id = wrapId;
+  const modelsToUse = COMBO_MODELS.slice(0,4); // top 4
+  modelsToUse.forEach(m=>{
+    wrap.innerHTML += `<div class="mcard" id="mc-${wrapId}-${m.id}">
+      <div class="mcard-hdr"><div class="mcard-dot" style="background:${m.color}"></div>
+        <span class="mcard-name">${m.label}</span>
+        <span class="mcard-badge">thinking...</span>
+      </div>
+      <div class="mcard-body loading" id="mb-${wrapId}-${m.id}"><span class="spin" style="border-top-color:var(--muted2)"></span> Generating...</div>
+      <div class="mcard-ftr"><button class="abtn" onclick="cp2Txt(this)">📋</button></div>
+    </div>`;
+  });
+  w.appendChild(wrap);
+  w.scrollTop = w.scrollHeight;
+
+  const langInstr = li(S.ch_lang||'English');
+  const prompt = `You are a helpful STEM assistant. ${langInstr}\nQuestion: ${msg}`;
+  const results = {};
+
+  // Fire all in parallel
+  const promises = modelsToUse.map(async m => {
+    try {
+      const r = await ai(prompt, m.v);
+      results[m.id] = r;
+      const bodyEl = document.getElementById('mb-'+wrapId+'-'+m.id);
+      if(bodyEl){ bodyEl.classList.remove('loading'); bodyEl.innerHTML = md(r); }
+      const badge = document.querySelector(`#mc-${wrapId}-${m.id} .mcard-badge`);
+      if(badge) badge.textContent='done';
+      // store for copy
+      const cpBtn = document.querySelector(`#mc-${wrapId}-${m.id} .abtn`);
+      if(cpBtn) cpBtn.onclick = ()=>{ navigator.clipboard.writeText(r); toast2('✓ Copied!'); };
+    } catch(e) {
+      const bodyEl = document.getElementById('mb-'+wrapId+'-'+m.id);
+      if(bodyEl){ bodyEl.classList.remove('loading'); bodyEl.textContent='⚠️ Error: '+e.message; }
+    }
+  });
+
+  await Promise.allSettled(promises);
+
+  // Pick best using GPT-4o
+  try {
+    const answers = modelsToUse.map(m=>`Model: ${m.label}\nAnswer: ${(results[m.id]||'').substring(0,500)}`).join('\n\n---\n\n');
+    const bestPick = await ai(`You are an AI judge. User asked: "${msg}"\n\nHere are answers from different AI models:\n\n${answers}\n\nWhich model gave the BEST answer? Reply ONLY with the model label exactly as written (e.g. "GPT-4o Mini"). No explanation.`, 'gpt-4o-mini');
+    const bestModel = modelsToUse.find(m=>bestPick.toLowerCase().includes(m.label.toLowerCase()));
+    if(bestModel) {
+      const card = document.getElementById('mc-'+wrapId+'-'+bestModel.id);
+      if(card) { card.classList.add('best'); card.querySelector('.mcard-name').innerHTML += ' <span class="best-crown">👑 Best</span>'; }
+      chatH.push({role:'assistant', content: results[bestModel.id]||''});
+    }
+  } catch(e){}
+  w.scrollTop = w.scrollHeight;
+}
+
+// ─── Cross-check mode — GPT answers, Claude verifies ───
+async function chatSendCrosscheck(msg) {
+  const w = document.getElementById('ch-win');
+  const langInstr = li(S.ch_lang||'English');
+  const prompt = `You are a helpful STEM assistant. ${langInstr}\nQuestion: ${msg}`;
+
+  // Step 1: GPT answers
+  const ansCard = document.createElement('div');
+  ansCard.className = 'mcard'; ansCard.style.width='100%';
+  ansCard.innerHTML = `<div class="mcard-hdr"><div class="mcard-dot" style="background:#10a37f"></div><span class="mcard-name">GPT-4o Mini — Answer</span></div>
+    <div class="mcard-body loading" id="cross-ans"><span class="spin" style="border-top-color:var(--muted2)"></span> Answering...</div>
+    <div class="mcard-ftr"><button class="abtn">📋</button></div>`;
+  w.appendChild(ansCard); w.scrollTop=w.scrollHeight;
+
+  let gptAnswer = '';
+  try {
+    gptAnswer = await ai(prompt, 'gpt-4o-mini');
+    const el = document.getElementById('cross-ans');
+    el.classList.remove('loading'); el.innerHTML = md(gptAnswer);
+    ansCard.querySelector('.abtn').onclick=()=>{navigator.clipboard.writeText(gptAnswer);toast2('✓ Copied!');};
+  } catch(e) {
+    document.getElementById('cross-ans').textContent='⚠️ Error: '+e.message;
+    return;
+  }
+
+  // Step 2: Claude verifies
+  const verCard = document.createElement('div');
+  verCard.className = 'verify-card';
+  verCard.innerHTML = `<div class="verify-hdr">✅ Claude Verification</div>
+    <div class="verify-body" id="cross-ver"><span class="spin" style="border-top-color:var(--a2)"></span> Verifying answer...</div>`;
+  w.appendChild(verCard); w.scrollTop=w.scrollHeight;
+
+  try {
+    const verPrompt = `You are a fact-checker and expert reviewer. ${langInstr}
+Original question: "${msg}"
+GPT-4o Mini's answer: "${gptAnswer.substring(0,1500)}"
+
+Review this answer:
+1. Is it CORRECT? Point out any errors.
+2. Is anything MISSING or incomplete?
+3. Give a CORRECTED/IMPROVED final answer if needed, or say "✓ Answer is correct and complete."
+Be concise and direct.`;
+    const verRaw = await ai(verPrompt, 'claude-sonnet-4-5');
+    const verResult = typeof verRaw === 'string' ? verRaw : verRaw?.message?.content || verRaw?.content || JSON.stringify(verRaw) || 'Verification complete.';
+    const el = document.getElementById('cross-ver');
+    el.innerHTML = md(verResult);
+    chatH.push({role:'assistant', content: gptAnswer + '\n\n---\nVerified by Claude:\n' + verResult});
+  } catch(e) {
+    document.getElementById('cross-ver').textContent='⚠️ Claude unavailable: '+e.message;
+  }
+  w.scrollTop = w.scrollHeight;
+}
+
+// ─── Panel mode — all 6 models show side by side ───
+async function chatSendPanel(msg) {
+  const w = document.getElementById('ch-win');
+  const wrapId = 'panel-'+Date.now();
+  const wrap = document.createElement('div');
+  wrap.className = 'multi-wrap cols3'; wrap.id = wrapId;
+  
+  COMBO_MODELS.forEach(m=>{
+    wrap.innerHTML += `<div class="mcard" id="pc-${wrapId}-${m.id}">
+      <div class="mcard-hdr"><div class="mcard-dot" style="background:${m.color}"></div>
+        <span class="mcard-name">${m.label}</span>
+        <span class="mcard-badge" id="pb-${wrapId}-${m.id}">...</span>
+      </div>
+      <div class="mcard-body loading" id="pm-${wrapId}-${m.id}"><span class="spin" style="border-top-color:var(--muted2)"></span></div>
+      <div class="mcard-ftr"><button class="abtn" id="pcp-${wrapId}-${m.id}">📋</button></div>
+    </div>`;
+  });
+  w.appendChild(wrap); w.scrollTop=w.scrollHeight;
+
+  const langInstr = li(S.ch_lang||'English');
+  const prompt = `You are a helpful STEM assistant. ${langInstr}\nAnswer concisely.\nQuestion: ${msg}`;
+
+  const promises = COMBO_MODELS.map(async m=>{
+    const start = Date.now();
+    try {
+      const r = await ai(prompt, m.v);
+      const elapsed = ((Date.now()-start)/1000).toFixed(1)+'s';
+      const bodyEl = document.getElementById('pm-'+wrapId+'-'+m.id);
+      if(bodyEl){bodyEl.classList.remove('loading');bodyEl.innerHTML=md(r);}
+      const badge = document.getElementById('pb-'+wrapId+'-'+m.id);
+      if(badge) badge.textContent=elapsed;
+      const cpBtn = document.getElementById('pcp-'+wrapId+'-'+m.id);
+      if(cpBtn) cpBtn.onclick=()=>{navigator.clipboard.writeText(r);toast2('✓ Copied!');};
+    } catch(e){
+      const bodyEl = document.getElementById('pm-'+wrapId+'-'+m.id);
+      if(bodyEl){bodyEl.classList.remove('loading');bodyEl.textContent='⚠️ '+e.message;}
+      const badge = document.getElementById('pb-'+wrapId+'-'+m.id);
+      if(badge) badge.textContent='error';
+    }
+  });
+
+  await Promise.allSettled(promises);
+  w.scrollTop = w.scrollHeight;
+}
+
+// ─── Fastest mode — race, first wins ───
+async function chatSendFastest(msg) {
+  const w = document.getElementById('ch-win');
+  const statusDiv = document.createElement('div');
+  statusDiv.className='cmsg a';
+  statusDiv.innerHTML='⚡ Racing all models... first answer wins!';
+  w.appendChild(statusDiv); w.scrollTop=w.scrollHeight;
+
+  const langInstr = li(S.ch_lang||'English');
+  const prompt = `You are a helpful STEM assistant. ${langInstr}\nQuestion: ${msg}`;
+
+  try {
+    const winner = await Promise.any(COMBO_MODELS.map(async m=>{
+      const r = await ai(prompt, m.v);
+      return {model:m, answer:r};
+    }));
+    statusDiv.innerHTML = `⚡ <strong>${winner.model.label}</strong> won the race!`;
+    addMsg(winner.answer, 'a');
+    chatH.push({role:'assistant', content:winner.answer});
+
+    // show who lost
+    const loseNote = document.createElement('div');
+    loseNote.style.cssText='font-size:.65rem;color:var(--muted);padding:.3rem .5rem';
+    loseNote.textContent='Other models still loading... (only fastest shown)';
+    w.appendChild(loseNote);
+  } catch(e){
+    statusDiv.textContent='⚠️ All models failed: '+e.message;
+  }
+  w.scrollTop=w.scrollHeight;
+}
+
+// Helper: copy from card
+function cp2Txt(btn) {
+  const body = btn.closest('.mcard').querySelector('.mcard-body');
+  navigator.clipboard.writeText(body?.innerText||'').then(()=>toast2('✓ Copied!'));
+}
+
+// CHAT
+function toggleDeep() {
+  deepMode = !deepMode;
+  document.getElementById('deep-toggle').classList.toggle('on', deepMode);
+  toast2(deepMode ? '🔍 Deep mode ON' : 'Deep mode OFF');
+}
+async function chatSend() {
+  const inp = document.getElementById('ch-inp');
+  const msg = inp.value.trim(); if(!msg)return;
+  inp.value = '';
+  addMsg(msg,'u');
+  startB('ch-btn',null);
+  chatH.push({role:'user',content:msg});
+  try {
+    if(comboMode==='single')      await chatSendSingle(msg);
+    else if(comboMode==='mixture') await chatSendMixture(msg);
+    else if(comboMode==='crosscheck') await chatSendCrosscheck(msg);
+    else if(comboMode==='panel')  await chatSendPanel(msg);
+    else if(comboMode==='fastest') await chatSendFastest(msg);
+  } catch(e){addMsg('⚠️ '+e.message,'a');}
+  finally{stopB('ch-btn',null);}
+}
+function addMsg(txt,role) {
+  const w=document.getElementById('ch-win');
+  const d=document.createElement('div'); d.className='cmsg '+role;
+  d.innerHTML=role==='a'?md(txt):txt.replace(/</g,'&lt;');
+  w.appendChild(d);w.scrollTop=w.scrollHeight;
+}
+function chKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();chatSend();}}
+function clearChat(){chatH=[];document.getElementById('ch-win').innerHTML='<div class="cmsg a">👋 Chat cleared! Ask me anything.</div>';}
+
+// SVG DOWNLOAD
+function dlSVG(){if(!currentSVG)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([currentSVG],{type:'image/svg+xml'}));a.download='diagram.svg';a.click();toast2('✓ Downloaded!');}
+
+// ═══ MECHANICAL TOOLS ═══
+const mechP = {
+  spm: (inp,lang)=>`You are a senior SPM and Jigs & Fixtures design engineer (20+ years). ${li(lang)}
+Requirement: ${inp}
+Provide complete design:
+## Component & Operation Analysis
+## 3-2-1 Locating Scheme (with directions)
+## Clamping Scheme & Clamping Force Calculation
+## Fixture Body Design (material, size, construction)
+## Tool Guidance Elements
+## Calculations (forces, tolerances)
+## Standard Parts List (IS standards)
+## Bill of Materials (BOM)
+## Cycle Time Estimate
+## Design Tips & Recommendations`,
+
+  beam: (inp,lang)=>`You are a structural/mechanical engineer. ${li(lang)}
+Beam type: ${S.bm_type}, Load: ${S.bm_load}, Section: ${S.bm_sec}
+Input: ${inp}
+Provide complete analysis:
+## Given Data Summary
+## Section Properties (I, Z, centroid)
+## Support Reactions (with working)
+## Shear Force Diagram (SFD) — values at key points
+## Bending Moment Diagram (BMD) — max value and location
+## Bending Stress Calculation
+## Shear Stress Calculation
+## Deflection (formula + value)
+## Factor of Safety
+## Pass/Fail Assessment`,
+
+  bolt: (inp,lang)=>`You are a machine design engineer. ${li(lang)}
+Bolt grade: ${S.bt_grade}
+Input: ${inp}
+Provide:
+## Bolt Specifications (IS 1367 / DIN)
+## Material Properties (Syt, Sut, Proof Stress)
+## Force Analysis (tensile/shear/combined)
+## Core Stress Calculation
+## Tightening Torque (with friction)
+## Factor of Safety
+## Recommendation (Adequate/Redesign)
+## Table: Stress Limits vs Actual`,
+
+  gear: (inp,lang)=>`You are a gear and power transmission design engineer. ${li(lang)}
+Gear type: ${S.gr_type}
+Input: ${inp}
+Provide complete design:
+## Gear Geometry (module, teeth, PCD, face width)
+## Velocity & Tangential Force Calculation
+## Material Selection & Heat Treatment
+## Lewis Equation — Bending Strength
+## Hertz Equation — Wear Strength (Buckingham)
+## Shaft Diameter Design
+## Key Design
+## Bearing Selection (SKF/FAG series)
+## Summary Table`,
+
+  mat: (inp,lang)=>`You are a materials engineering expert. ${li(lang)}
+Query: ${inp}
+Provide:
+## Material Designation (IS / AISI / DIN / BS)
+## Chemical Composition Table
+## Mechanical Properties Table (Syt, Sut, E, hardness, elongation)
+## Heat Treatment Options & Effects
+## Machinability & Weldability Rating
+## Applications in Manufacturing (SPM, Jigs, Machine parts)
+## India Availability & Approximate Price
+## Comparison with Alternatives`,
+
+  tol: (inp,lang)=>`You are a precision engineering expert (IS 919 / ISO 286). ${li(lang)}
+Query: ${inp}
+Provide:
+## Tolerance Grade Explanation
+## Fundamental Deviation (hole + shaft)
+## Limits Table: Upper Deviation, Lower Deviation, Actual Limits
+## Fit Classification (Clearance/Transition/Interference)
+## Clearance/Interference Values (min/max)
+## Manufacturing Process Recommendation
+## Surface Finish (Ra value)
+## Go/NoGo Gauge Dimensions
+## Assembly/Disassembly Guidance`,
+
+  cad: (inp,lang)=>`You are an AutoCAD expert (2D/3D, Mechanical Desktop). ${li(lang)}
+Question: ${inp}
+Provide:
+## Answer / Explanation
+## Step-by-Step AutoCAD Commands
+## Command Sequence (exact commands to type)
+## Keyboard Shortcuts
+## Tips & Tricks
+## Common Mistakes to Avoid
+## Alternative Methods`,
+
+  draw: (inp,lang)=>`You are an engineering drawing standards expert (IS 696, ISO 128, ASME Y14.5). ${li(lang)}
+Question: ${inp}
+Provide:
+## Answer
+## Standard Reference (IS/ISO/ASME clause)
+## How to Represent on Drawing (exact method)
+## Standard Values / Tables
+## Examples
+## Best Practices
+## Common Mistakes`,
+};
+
+async function runM(tid) {
+  const ids={spm:'spm-inp',beam:'beam-inp',bolt:'bolt-inp',gear:'gear-inp',mat:'mat-inp',tol:'tol-inp',cad:'cad-inp',draw:'draw-inp'};
+  const langs={spm:S.spm_lang,beam:S.bm_lang,bolt:S.bt_lang,gear:S.gr_lang,mat:S.mt_lang,tol:S.tl_lang,cad:S.cad_lang,draw:S.dr_lang};
+  const el = document.getElementById(ids[tid]); if(!el)return;
+  const inp = el.value.trim();
+  if(!inp){showE(tid+'-err','Input dalo pehle!');return;}
+  document.getElementById(tid+'-err').style.display='none';
+  startB(tid+'-btn',tid+'-lb');
+  document.getElementById(tid+'-ow').style.display='block';
+  document.getElementById(tid+'-ob').innerHTML='<div class="oempty">⚙️ Calculating...</div>';
+  try {
+    const pf = mechP[tid];
+    const txt = await aiCtx(pf(inp, langs[tid]||'English'), tid);
+    showO(tid+'-ow',tid+'-ob',txt);
+  } catch(e){showE(tid+'-err',e.message);}
+  finally{stopB(tid+'-btn',tid+'-lb');}
+}
+
+// ═══ UNIT CONVERTERS ═══
+const r=(id,v)=>{const e=document.getElementById(id);if(e&&document.activeElement!==e)e.value=v===null?'':+v.toFixed(6);};
+function resetUC(){document.querySelectorAll('.uci').forEach(e=>e.value='');}
+
+function ucL(el,u){const v=+el.value,t={mm:1,cm:10,m:1000,in:25.4,ft:304.8};const mm=v*t[u];Object.entries(t).forEach(([k,f])=>{if(k!==u)r('uc-'+k,mm/f);});}
+function ucF(el,u){const v=+el.value,t={n:1,kn:1000,kgf:9.80665,lbf:4.44822,ton:9806.65};const n=v*t[u];Object.entries(t).forEach(([k,f])=>{if(k!==u)r('uc-'+k,n/f);});}
+function ucP(el,u){const v=+el.value,t={pa:1,mpa:1e6,gpa:1e9,psi:6894.76,bar:1e5,kgmm:9.80665e6};const pa=v*t[u];Object.entries(t).forEach(([k,f])=>{if(k!==u)r('uc-'+k,pa/f);});}
+function ucT(el,u){const v=+el.value,t={nm:1,knm:1000,nmm:0.001,kgm:9.80665,lbft:1.35582};const nm=v*t[u];Object.entries(t).forEach(([k,f])=>{if(k!==u)r('uc-'+k,nm/f);});}
+function ucPow(el,u){const v=+el.value,t={w:1,kw:1000,hp:735.499,hpi:745.7};const w=v*t[u];Object.entries(t).forEach(([k,f])=>{if(k!==u)r('uc-'+k,w/f);});}
+function ucTe(el,u){const v=+el.value;if(u==='c'){r('uc-f',v*9/5+32);r('uc-k',v+273.15);}else if(u==='f'){const c=(v-32)*5/9;r('uc-c',c);r('uc-k',c+273.15);}else{const c=v-273.15;r('uc-c',c);r('uc-f',c*9/5+32);}}
+</script>
+</body>
+</html>
